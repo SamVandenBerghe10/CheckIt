@@ -15,7 +15,9 @@ const ProjectView = ({navigation}) => {
                     <FlatList data={data} renderItem={({item}) => <Project navigation={navigation} project={item}/>} numColumns={columnsNumber}/>
                 </View>
             </ScrollView>
-            
+            <TouchableOpacity onPress={() => navigation.navigate('Settings')} style={styles.addProject}>
+                <Text style={styles.addProjectText}>+</Text>
+            </TouchableOpacity>
         </View>
     )
 }
