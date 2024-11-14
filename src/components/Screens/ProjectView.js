@@ -22,7 +22,7 @@ const ProjectView = ({navigation}) => {
 
 const Project = ({navigation, project}) => {
     return (
-        <TouchableOpacity onPress={() => navigation.navigate('Tasks')} style={styles.projectTile}>
+        <TouchableOpacity onPress={() => navigation.navigate('Tasks', {project: project})} style={styles.projectTile}>
             <Text>Project {project}</Text>
         </TouchableOpacity>
     )
