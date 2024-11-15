@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
       alignItems: 'center'
     },
     header: {
-        fontSize: '300%',
+        fontSize: 40,
         fontWeight: 'bold',
         backgroundColor: 'green',
         width: '100%',
@@ -40,12 +40,38 @@ export const styles = StyleSheet.create({
         color: 'white',
     },
     taskHeader: {
-        fontSize: '300%',
+        fontSize: 30,
         fontWeight: 'bold',
         backgroundColor: 'yellow',
         width: '50%',
         margin: '20px',
         padding: '10px',
         borderRadius: '15px',
+        alignSelf: "flex-start"
+    },
+    taskColumn: {
+        flex: 1,
+        width: '300px',
+        height: 'auto',
+        margin: '20px',
+        padding: '10px',
+        borderRadius: '15px',
+        backgroundColor: 'gray',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+    },
+    taskColumnText: {
+        flex: 1,
+        fontWeight: 'bold',
+        color: 'white',
+    },
+    task: {
+        width: '250px',
+        height: '50px',
+        margin: '10px',
+        padding: '10px',
+        borderRadius: '15px',
+        borderWidth: 1,
+        backgroundColor: 'darkgray',
     }
   });

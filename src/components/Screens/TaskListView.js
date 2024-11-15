@@ -3,6 +3,7 @@ import { View, Text, ScrollView, FlatList } from "react-native"
 import { useState } from "react"
 import { useEffect } from "react"
 import { styles } from "../../themes/styles"
+import { TouchableOpacity } from "react-native"
 
 
 const TaskListView = ({route}) => {
@@ -15,7 +16,7 @@ const TaskListView = ({route}) => {
                 .then(res => res.json())
                 .then(data => {
                     setTasks(data)
-                    console.log("taksks: " + JSON.stringify(data))
+                    console.log("tasks: " + JSON.stringify(data))
                 })
                 .catch(error => console.error(error))
       
@@ -28,7 +29,7 @@ const TaskListView = ({route}) => {
                 .then(res => res.json())
                 .then(data => {
                     setStatus(data)
-                    console.log("taksks: " + JSON.stringify(data))
+                    console.log("status: " + JSON.stringify(data))
                 })
                 .catch(error => console.error(error))
       
@@ -36,15 +37,28 @@ const TaskListView = ({route}) => {
     return (
         <View>
             <Text style={styles.taskHeader}>{project.Name}</Text>
-            <ScrollView>
-                <FlatList
-                    data={tasks}
-                    renderItem={({item}) => 
-                        <Text>{item.Title}</Text>
-                    }
-                />
+            <ScrollView horizontal>
+            <FlatList data={status} renderItem={({item}) => <TaskColumn item={item} tasks={tasks}/>} numColumns={4}/>
              </ScrollView>
         </View>
+    )
+}
+
+const TaskColumn = ({item, tasks}) => {
+    return (
+        <View style={styles.taskColumn}>
+            <Text style={styles.taskColumnText}>{item.Status}</Text>
+            <FlatList data={tasks.filter(i => i.Status == item.Status)} renderItem={({item}) => <Task task={item}></Task>}/>
+        </View>
+        
+    )
+}
+
+const Task = ({task}) => {
+    return (
+        <TouchableOpacity style={styles.task}>
+            <Text>{task.Title}</Text>
+        </TouchableOpacity>
     )
 }
 
