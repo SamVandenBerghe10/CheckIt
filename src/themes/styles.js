@@ -32,10 +32,20 @@ export const styles = StyleSheet.create({
         backgroundColor: 'green',
         alignItems: 'center',
         justifyContent: 'center',
+        borderRadius: '15px',
         
     },
     addProjectText: {
         fontWeight: 'bold',
         color: 'white',
+    },
+    taskHeader: {
+        fontSize: '300%',
+        fontWeight: 'bold',
+        backgroundColor: 'yellow',
+        width: '50%',
+        margin: '20px',
+        padding: '10px',
+        borderRadius: '15px',
     }
   });

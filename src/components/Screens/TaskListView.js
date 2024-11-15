@@ -1,19 +1,46 @@
 import React from "react"
 import { View, Text, ScrollView, FlatList } from "react-native"
+import { useState } from "react"
+import { useEffect } from "react"
+import { styles } from "../../themes/styles"
 
 
 const TaskListView = ({route}) => {
-    var array = [1,2,3,4,5,6,7,8,9,10]
     var {project} = route.params
+
+    const [tasks, setTasks] = useState([])
+
+    useEffect(() => {
+        fetch("http://localhost:3000/tasks/project/" + project.Id)
+                .then(res => res.json())
+                .then(data => {
+                    setTasks(data)
+                    console.log("taksks: " + JSON.stringify(data))
+                })
+                .catch(error => console.error(error))
+      
+    }, [])
+
+    const [status, setStatus] = useState([])
+
+    useEffect(() => {
+        fetch("http://localhost:3000/tasks/status/")
+                .then(res => res.json())
+                .then(data => {
+                    setStatus(data)
+                    console.log("taksks: " + JSON.stringify(data))
+                })
+                .catch(error => console.error(error))
+      
+    }, [])
     return (
         <View>
-            <Text>TaskListView</Text>
-            <Text>Project: {project}</Text>
+            <Text style={styles.taskHeader}>{project.Name}</Text>
             <ScrollView>
                 <FlatList
-                    data={array}
+                    data={tasks}
                     renderItem={({item}) => 
-                        <Text>{item}</Text>
+                        <Text>{item.Title}</Text>
                     }
                 />
              </ScrollView>
