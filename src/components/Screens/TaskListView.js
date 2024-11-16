@@ -9,6 +9,7 @@ import { TouchableWithoutFeedback } from "react-native"
 import { TextInput } from "react-native"
 import { Button } from "react-native"
 import {Picker} from '@react-native-picker/picker';
+import { useNavigation } from '@react-navigation/native';
 
 
 const TaskListView = ({route}) => {
@@ -48,7 +49,7 @@ const TaskListView = ({route}) => {
                 .then(res => res.json())
                 .then(data => {
                     setPriorities(data)
-                    console.log("priorities: " + JSON.stringify(temp))
+                    console.log("priorities: " + JSON.stringify(data))
                 })
                 .catch(error => console.error(error))
       
@@ -143,8 +144,9 @@ const TaskColumn = ({item, tasks, statusList, categories, priorities}) => {
 }
 
 const Task = ({task}) => {
+    var navigation = useNavigation()
     return (
-        <TouchableOpacity style={styles.task}>
+        <TouchableOpacity style={styles.task} onPress={() => navigation.navigate('TaskDetail', {task})}>
             <Text>{task.Title}</Text>
         </TouchableOpacity>
     )
