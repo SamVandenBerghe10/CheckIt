@@ -78,7 +78,16 @@ export const styles = StyleSheet.create({
         padding: '10px',
         borderRadius: '15px',
         borderWidth: 1,
-        backgroundColor: 'darkgray',
+        backgroundColor: 'darkgrey',
+    },
+    addTask: {
+        width: '250px',
+        height: '50px',
+        margin: '10px',
+        padding: '10px',
+        borderRadius: '15px',
+        borderWidth: 1,
+        backgroundColor: 'lightgrey',
     },
     addProjectContainer: {
         flex: 1,

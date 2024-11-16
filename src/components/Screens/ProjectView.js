@@ -7,13 +7,13 @@ import { Button } from "react-native"
 import { TextInput } from "react-native"
 
 const ProjectView = ({navigation}) => {
-    var screenWidth = Dimensions.get('window').width
-    var columnsNumber = Math.floor((screenWidth - (screenWidth/300)*30)/300)
-
+    
+    const [columnsNumber, setColumns] = useState(Math.floor((Dimensions.get('window').width - (Dimensions.get('window').width/300)*30)/300))
+ 
     const [projects, setProjects] = useState([])
 
     useEffect(() => {
-        fetch("http://localhost:3000/projects")
+        fetch("http://192.168.0.202:3000/projects")
                 .then(res => res.json())
                 .then(data => {
                     setProjects(data)
