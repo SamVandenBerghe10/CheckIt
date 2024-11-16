@@ -10,6 +10,8 @@ import { TextInput } from "react-native"
 import { Button } from "react-native"
 import {Picker} from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
+import { useContext } from "react"
+import { ThemeContext } from "../../../App"
 
 
 const TaskListView = ({route}) => {
@@ -69,8 +71,9 @@ const TaskListView = ({route}) => {
         }, [])
 
     const status = ["Nog doen", "Mee bezig", "Nakijken", "Klaar"]
+    const { isDarkMode, toggleTheme } = useContext(ThemeContext);
     return (
-        <View>
+        <View style={[styles.container2,{backgroundColor: isDarkMode ? '#42474f' :'#fff'}]}>
             <Text style={styles.taskHeader}>{project.Name}</Text>
             <ScrollView horizontal>
             <FlatList data={status} renderItem={({item}) => <TaskColumn item={item} tasks={tasks} statusList={status} categories={categories} priorities={[...selectedPriority, ...priorities]}/>} numColumns={4}/>
@@ -107,15 +110,15 @@ const TaskColumn = ({item, tasks, statusList, categories, priorities}) => {
                     <Text>Deadline (YYYY-MM-DD HH:MM:SS):</Text>
                     <TextInput placeholder="Task deadline" onChangeText={(text) => setDeadline(text)} value={deadline} style={styles.addProjectInput} label/>
                     <Text>Status</Text>
-                    <Picker selectedValue={selectedStatus} onValueChange={(itemValue, itemIndex) => setSelectedStatus(itemValue)}>
+                    <Picker selectedValue={selectedStatus} onValueChange={(itemValue, itemIndex) => setSelectedStatus(itemValue)} style={styles.addProjectInput}>
                         {statusList.map((statusItem) => (<Picker.Item label={statusItem} value={statusItem} key={statusItem}/>))}
                     </Picker>
                     <Text>Category</Text>
-                    <Picker selectedValue={selectedCategory} onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)}>
+                    <Picker selectedValue={selectedCategory} onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)} style={styles.addProjectInput}>
                         {categories.map((category) => (<Picker.Item label={category.Name} value={category.Name} key={category.Id}/>))}
                     </Picker>
                     <Text>Priority</Text>
-                    <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)}>
+                    <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={styles.addProjectInput}>
                         {priorities.map((priority) => (<Picker.Item label={priority.Name} value={priority.Name} key={priority.Id}/>))}
                     </Picker>
                     <Button title="Submit" onPress={handleSubmit}/>

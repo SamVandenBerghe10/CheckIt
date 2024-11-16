@@ -5,6 +5,8 @@ import { useState, useEffect } from "react"
 import { Modal } from "react-native-web"
 import { Button } from "react-native"
 import { TextInput } from "react-native"
+import { useContext } from "react"
+import { ThemeContext } from "../../../App"
 
 const ProjectView = ({navigation}) => {
     
@@ -52,8 +54,9 @@ const ProjectView = ({navigation}) => {
         );
     }
 
+    const { isDarkMode, toggleTheme } = useContext(ThemeContext);
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, {backgroundColor: isDarkMode ? '#42474f' :'#fff'}]}>
             <Text style={styles.header}>CheckIt!</Text>
             <ScrollView>
                 <View>
