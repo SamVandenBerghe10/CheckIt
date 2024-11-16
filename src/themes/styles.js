@@ -4,16 +4,20 @@ export const styles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: '#fff',
-      alignItems: 'center'
+      alignItems: 'center',
     },
     header: {
         fontSize: 40,
         fontWeight: 'bold',
         backgroundColor: 'green',
         width: '100%',
-        alignItems: 'center'
+        alignItems: 'center',
+        padding: "10px"
     },
-    projectTileContainer: {
+    projectTileName: {
+        fontWeight: 'bold',
+        fontSize: 20,
+        marginBottom: "5px",
     },
     projectTile: {
         width: '300px',
@@ -21,7 +25,9 @@ export const styles = StyleSheet.create({
         backgroundColor: 'yellow',
         margin: '15px',
         borderRadius: '25px',
-        padding: "15px"
+        padding: "35px",
+        borderWidth: 2,
+        borderColor: 'lightgrey'
     },
     addProject: {
         position: 'absolute',
@@ -73,5 +79,39 @@ export const styles = StyleSheet.create({
         borderRadius: '15px',
         borderWidth: 1,
         backgroundColor: 'darkgray',
+    },
+    addProjectContainer: {
+        flex: 1,
+        margin: '20px',
+        paddingBottom: '20px',
+        paddingHorizontal: '30px',
+        backgroundColor: 'lightgray',
+        width: '40%',
+        alignSelf: 'center',
+        justifyContent: 'center',
+        borderRadius: '25px',
+    },
+    addProjectInput: {
+        backgroundColor: 'white',
+        margin: '10px',
+        padding: '5px',
+        borderRadius: '15px',
+        borderWidth: 1,
+    },
+    addProjectTitle: {
+        fontWeight: 'bold',
+        color: 'white',
+        margin: '10px',
+        padding: '5px',
+        fontSize: 20,
+        backgroundColor: 'gray',
+        borderRadius: '15px',
+        alignSelf: 'center'
+    },
+    addProjectTransparant: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        height: "auto",
+        justifyContent: 'center',
     }
   });
