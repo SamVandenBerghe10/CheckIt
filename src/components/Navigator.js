@@ -19,7 +19,7 @@ const Navigator = () => {
                 headerStyle: {backgroundColor: isDarkMode ? '#232529' :'#fff'},
                 headerTintColor:isDarkMode ? '#fff' : '#000000',
             }}>
-                <Tab.Screen name="Projects" component={HomeScreenView} options={{title: 'Projects', headerShown:false}} />
+                <Tab.Screen name="Home" component={HomeScreenView} options={{title: 'Projects', headerShown:false}} />
                 <Tab.Screen name="Settings" component={SettingsView} options={{title: 'Settings'}} />
             </Tab.Navigator>
         </NavigationContainer>

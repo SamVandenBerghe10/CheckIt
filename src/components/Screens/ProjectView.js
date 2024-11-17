@@ -32,8 +32,10 @@ const ProjectView = ({navigation}) => {
         const [description, setDescription] = useState('');
     
         const handleSubmit = () => {
-            console.log('Name:', name);
-            console.log('Email:', email);
+            projects.push({Id: -1, Name: name, Description: description})
+            setModalVisible(false)
+            setName("")
+            setDescription("")
         };
     
         return (

@@ -147,10 +147,24 @@ const TaskColumn = ({item, tasks, statusList, categories, priorities}) => {
 }
 
 const Task = ({task}) => {
+    const [taskCategory, setTaskCategory] = useState([]);
+
+    useEffect(() => {
+        fetch("http://192.168.0.202:3000/tasks/"+ task.CategoryId +"/category")
+                .then(res => res.json())
+                .then(data => {
+                    setTaskCategory(data)
+                    console.log("category of task " + JSON.stringify(data))
+                })
+                .catch(error => console.error(error))
+      
+    }, [])
+
     var navigation = useNavigation()
+    var category = taskCategory[0]
     return (
-        <TouchableOpacity style={styles.task} onPress={() => navigation.navigate('TaskDetail', {task})}>
-            <Text>{task.Title}</Text>
+        <TouchableOpacity style={[styles.task, {borderColor: category?.Color}]} onPress={() => navigation.navigate('TaskDetail', {task})}>
+            <Text>{task.Title + " "}{category ? "| " + category.Name : ""}</Text>
         </TouchableOpacity>
     )
 }
