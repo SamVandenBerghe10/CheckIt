@@ -23,7 +23,7 @@ const SettingsView = () => {
       const [addCategoryColor, setAddCategoryColor] = useState("")
 
     useEffect(() => {
-        fetch("http://192.168.0.202:3000/categories")
+        fetch("http://192.168.0.101:3000/categories")
                 .then(res => res.json())
                 .then(data => {
                     setCategories(data)

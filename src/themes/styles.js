@@ -95,14 +95,17 @@ export const styles = StyleSheet.create({
     },
     addProjectContainer: {
         flex: 1,
+        alignContent: 'center',
+    },
+    addProjectForm: {
         margin: 20,
+        marginTop: 50,
         paddingBottom: 20,
         paddingHorizontal: 30,
         backgroundColor: 'lightgray',
-        width: '40%',
-        alignSelf: 'center',
-        justifyContent: 'center',
+        width: '80%',
         borderRadius: 25,
+        alignSelf: 'center',
     },
     addProjectInput: {
         backgroundColor: 'white',
@@ -110,6 +113,17 @@ export const styles = StyleSheet.create({
         padding: 5,
         borderRadius: 15,
         borderWidth: 1,
+    },
+    addPicker: {
+        backgroundColor: 'white',
+        margin: 10,
+        padding: 5,
+        borderRadius: 15,
+        borderWidth: 1,
+    },
+    addPickerIos: {
+        backgroundColor: '#42474f',
+        margin: 20,
     },
     addProjectTitle: {
         fontWeight: 'bold',
@@ -124,7 +138,6 @@ export const styles = StyleSheet.create({
     addProjectTransparant: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        height: "auto",
         justifyContent: 'center',
     },
     horizontalLine: {

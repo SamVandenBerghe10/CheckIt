@@ -2,7 +2,7 @@ import React from "react"
 import { View, Text, TouchableOpacity, ScrollView, FlatList, Dimensions, TouchableWithoutFeedback } from "react-native"
 import { styles } from "../../themes/styles"
 import { useState, useEffect } from "react"
-import { Modal } from "react-native-web"
+import { Modal } from "react-native"
 import { Button } from "react-native"
 import { TextInput } from "react-native"
 import { useContext } from "react"
@@ -15,7 +15,7 @@ const ProjectView = ({navigation}) => {
     const [projects, setProjects] = useState([])
 
     useEffect(() => {
-        fetch("http://192.168.0.202:3000/projects")
+        fetch("http://192.168.0.101:3000/projects")
                 .then(res => res.json())
                 .then(data => {
                     setProjects(data)
@@ -39,9 +39,10 @@ const ProjectView = ({navigation}) => {
         };
     
         return (
-            <TouchableOpacity onPress={() => setModalVisible(false)} activeOpacity={1}>
-                <TouchableWithoutFeedback>
-                <View style={styles.addProjectContainer}>
+            <View style={styles.addProjectTransparant}>
+                <TouchableOpacity onPress={() => setModalVisible(false)} activeOpacity={1} >
+                <TouchableWithoutFeedback >
+                <View style={styles.addProjectForm}>
                     <Text style={styles.addProjectTitle}>Add a new Project!</Text>
                     <Text>Project name:</Text>
                     <TextInput placeholder="Project Name" onChangeText={(text) => setName(text)} value={name} style={styles.addProjectInput} label/>
@@ -50,8 +51,8 @@ const ProjectView = ({navigation}) => {
                     <Button title="Submit" onPress={handleSubmit}/>
                 </View>
                 </TouchableWithoutFeedback>
-                
             </TouchableOpacity>
+            </View>
             
         );
     }
@@ -69,9 +70,7 @@ const ProjectView = ({navigation}) => {
                 <Text style={styles.addProjectText}>+</Text>
             </TouchableOpacity>
             <Modal visible={modalVisible} animationType="fade" transparent={true} >
-                <View style={styles.addProjectTransparant}>
-                    <AddProject/>
-                </View>
+                <AddProject/>
             </Modal>
         </View>
     )

@@ -12,6 +12,7 @@ import {Picker} from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import { useContext } from "react"
 import { ThemeContext } from "../../../App"
+import { Platform } from "react-native"
 
 
 const TaskListView = ({route}) => {
@@ -20,7 +21,7 @@ const TaskListView = ({route}) => {
     const [tasks, setTasks] = useState([])
 
     useEffect(() => {
-        fetch("http://192.168.0.202:3000/tasks/project/" + project.Id)
+        fetch("http://192.168.0.101:3000/tasks/project/" + project.Id)
                 .then(res => res.json())
                 .then(data => {
                     setTasks(data)
@@ -33,7 +34,7 @@ const TaskListView = ({route}) => {
     const [categories, setCategories] = useState([])
 
     useEffect(() => {
-        fetch("http://192.168.0.202:3000/categories")
+        fetch("http://192.168.0.101:3000/categories")
                 .then(res => res.json())
                 .then(data => {
                     var temp = [{Id: -1, Name: ""}, ...data]
@@ -47,7 +48,7 @@ const TaskListView = ({route}) => {
     const [priorities, setPriorities] = useState([])
 
     useEffect(() => {
-        fetch("http://192.168.0.202:3000/priorities")
+        fetch("http://192.168.0.101:3000/priorities")
                 .then(res => res.json())
                 .then(data => {
                     setPriorities(data)
@@ -60,7 +61,7 @@ const TaskListView = ({route}) => {
     const [selectedPriority, setSelectedPriority] = useState([]);
 
         useEffect(() => {
-            fetch("http://192.168.0.202:3000/priorities/standard")
+            fetch("http://192.168.0.101:3000/priorities/standard")
                     .then(res => res.json())
                     .then(data => {
                         setSelectedPriority(data)
@@ -94,14 +95,15 @@ const TaskColumn = ({item, tasks, statusList, categories, priorities}) => {
         const [selectedPriority, setSelectedPriority] = useState({});
     
         const handleSubmit = () => {
-            console.log('Name:', name);
-            console.log('Email:', email);
+            console.log('post new task')
         };
     
         return (
-            <TouchableOpacity onPress={() => setModalVisible(false)} activeOpacity={1}>
+            <View style={styles.addProjectTransparant}>
+                <TouchableOpacity onPress={() => setModalVisible(false)} activeOpacity={1}>
                 <TouchableWithoutFeedback>
-                <View style={styles.addProjectContainer}>
+                <View style={styles.addProjectForm}>
+                    <ScrollView>
                     <Text style={styles.addProjectTitle}>Add a new Task in "{status}"</Text>
                     <Text>Project Title:</Text>
                     <TextInput placeholder="Task Title" onChangeText={(text) => setTitle(text)} value={title} style={styles.addProjectInput} label/>
@@ -110,21 +112,26 @@ const TaskColumn = ({item, tasks, statusList, categories, priorities}) => {
                     <Text>Deadline (YYYY-MM-DD HH:MM:SS):</Text>
                     <TextInput placeholder="Task deadline" onChangeText={(text) => setDeadline(text)} value={deadline} style={styles.addProjectInput} label/>
                     <Text>Status</Text>
-                    <Picker selectedValue={selectedStatus} onValueChange={(itemValue, itemIndex) => setSelectedStatus(itemValue)} style={styles.addProjectInput}>
+                    <Picker selectedValue={selectedStatus} onValueChange={(itemValue, itemIndex) => setSelectedStatus(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
                         {statusList.map((statusItem) => (<Picker.Item label={statusItem} value={statusItem} key={statusItem}/>))}
                     </Picker>
                     <Text>Category</Text>
-                    <Picker selectedValue={selectedCategory} onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)} style={styles.addProjectInput}>
-                        {categories.map((category) => (<Picker.Item label={category.Name} value={category.Name} key={category.Id}/>))}
+                    <Picker selectedValue={selectedCategory} onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
+                        {categories.map((category) => (<Picker.Item label={category.Name} value={category.Name} key={category.Id} color='white'/>))}
                     </Picker>
                     <Text>Priority</Text>
-                    <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={styles.addProjectInput}>
-                        {priorities.map((priority) => (<Picker.Item label={priority.Name} value={priority.Name} key={priority.Id}/>))}
+                    <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
+                        {priorities.map((priority) => (<Picker.Item label={priority.Name} value={priority.Name} key={priority.Id} color='white'/>))}
                     </Picker>
+                    
                     <Button title="Submit" onPress={handleSubmit}/>
+                    </ScrollView>
+                    
                 </View>
                 </TouchableWithoutFeedback>
             </TouchableOpacity>
+            </View>
+            
             
         );
     }
@@ -137,9 +144,7 @@ const TaskColumn = ({item, tasks, statusList, categories, priorities}) => {
             </TouchableOpacity>
 
             <Modal visible={modalVisible} animationType="fade" transparent={true} >
-                <View style={styles.addProjectTransparant}>
-                    <AddTask status={item}/>
-                </View>
+                <AddTask status={item}/>
             </Modal>
         </View>
         
@@ -150,7 +155,7 @@ const Task = ({task}) => {
     const [taskCategory, setTaskCategory] = useState([]);
 
     useEffect(() => {
-        fetch("http://192.168.0.202:3000/tasks/"+ task.CategoryId +"/category")
+        fetch("http://192.168.0.101:3000/tasks/"+ task.CategoryId +"/category")
                 .then(res => res.json())
                 .then(data => {
                     setTaskCategory(data)

@@ -16,9 +16,14 @@ const HomeScreenView = () => {
             headerStyle: {backgroundColor: isDarkMode ? '#232529' :'#fff'},
             headerTintColor:isDarkMode ? '#fff' : '#000000',
             }}>
-            <Stack.Screen name="Projects" component={ProjectView} options={{headerShown: false}} />
-            <Stack.Screen name="Tasks" component={TaskListView} options={{title: 'Task'}} />
-            <Stack.Screen name="TaskDetail" component={TaskView} options={{title: 'TaskDetail'}} />
+            <Stack.Group>
+                <Stack.Screen name="Projects" component={ProjectView} options={{headerShown: false}} />
+                <Stack.Screen name="Tasks" component={TaskListView} options={{title: 'Task'}} />
+            </Stack.Group>
+            <Stack.Group screenOptions={{presentation: 'modal'}}>
+                <Stack.Screen name="TaskDetail" component={TaskView} options={{title: 'TaskDetail'}}/>
+            </Stack.Group>
+            
         </Stack.Navigator>
     )
 }
