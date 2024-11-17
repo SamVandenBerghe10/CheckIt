@@ -77,13 +77,13 @@ const TaskListView = ({route}) => {
         <View style={[styles.container2,{backgroundColor: isDarkMode ? '#42474f' :'#fff'}]}>
             <Text style={styles.taskHeader}>{project.Name}</Text>
             <ScrollView horizontal>
-            <FlatList data={status} renderItem={({item}) => <TaskColumn item={item} tasks={tasks} statusList={status} categories={categories} priorities={[...selectedPriority, ...priorities]}/>} numColumns={4}/>
+            <FlatList data={status} renderItem={({item}) => <TaskColumn item={item} tasks={tasks} statusList={status} categories={categories} priorities={[...selectedPriority, ...priorities]} project={project}/>} numColumns={4}/>
              </ScrollView>
         </View>
     )
 }
 
-const TaskColumn = ({item, tasks, statusList, categories, priorities}) => {
+const TaskColumn = ({item, tasks, statusList, categories, priorities, project}) => {
     const [modalVisible, setModalVisible] = useState(false);
 
     const AddTask = ({status}) => {
@@ -95,7 +95,16 @@ const TaskColumn = ({item, tasks, statusList, categories, priorities}) => {
         const [selectedPriority, setSelectedPriority] = useState({});
     
         const handleSubmit = () => {
-            console.log('post new task')
+            var temp ={Id: -1, Title: title, Description: description, Deadline: deadline, Status: selectedStatus, ProjectId: project.Id,CategoryId: selectedCategory, Priority: selectedPriority} // selectedCategory && selectedPriorty nog niet correct(Id)
+            tasks.push(temp)
+            setModalVisible(false)
+            setTitle('')
+            setDescription('')
+            setDeadline('')
+            setSelectedStatus(item)
+            setSelectedCategory("")
+            setSelectedPriority({})
+            console.log('post new task: '+ JSON.stringify(temp))
         };
     
         return (
@@ -117,11 +126,11 @@ const TaskColumn = ({item, tasks, statusList, categories, priorities}) => {
                     </Picker>
                     <Text>Category</Text>
                     <Picker selectedValue={selectedCategory} onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
-                        {categories.map((category) => (<Picker.Item label={category.Name} value={category.Name} key={category.Id} color='white'/>))}
+                        {categories.map((category) => (<Picker.Item label={category.Name} value={category.Name} key={category.Id}/>))}
                     </Picker>
                     <Text>Priority</Text>
                     <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
-                        {priorities.map((priority) => (<Picker.Item label={priority.Name} value={priority.Name} key={priority.Id} color='white'/>))}
+                        {priorities.map((priority) => (<Picker.Item label={priority.Name} value={priority.Name} key={priority.Id}/>))}
                     </Picker>
                     
                     <Button title="Submit" onPress={handleSubmit}/>

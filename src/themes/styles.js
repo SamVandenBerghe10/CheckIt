@@ -115,7 +115,7 @@ export const styles = StyleSheet.create({
         borderWidth: 1,
     },
     addPicker: {
-        backgroundColor: 'white',
+      
         margin: 10,
         padding: 5,
         borderRadius: 15,
