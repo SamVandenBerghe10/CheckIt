@@ -1,5 +1,5 @@
 import React from "react"
-import { View, Text } from "react-native"
+import { View, Text, TouchableOpacity } from "react-native"
 import { Switch } from "react-native"
 import { useContext } from "react"
 import { Button } from "react-native"
@@ -12,6 +12,7 @@ import { TextInput } from "react-native"
 import { ScrollView } from "react-native"
 import ColorPicker from 'react-native-wheel-color-picker'
 import { ActivityIndicator } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const SettingsView = () => {
       const { isDarkMode, toggleTheme } = useContext(ThemeContext);
@@ -23,7 +24,7 @@ const SettingsView = () => {
       const [addCategoryColor, setAddCategoryColor] = useState("")
 
     useEffect(() => {
-        fetch("http://192.168.0.101:3000/categories")
+        fetch("http://localhost:3000/categories")
                 .then(res => res.json())
                 .then(data => {
                     setCategories(data)
@@ -39,14 +40,17 @@ const SettingsView = () => {
                 <Switch value={isDarkMode} onValueChange={toggleTheme}/>
                 <View style={styles.horizontalLine}/>
                 <Text style={styles.addProjectTitle}>Categories:</Text>
-                <FlatList
+                {categories.length > 0 ? (<FlatList
                     data={categories}
                     renderItem={({ item }) =>
                     <View style={[styles.category, styles.task, {borderColor: item.Color}]}>
                         <Text>{item.Name}</Text>
-                        <Button title="x" onPress={ () => setCategories(categories.filter(category => category.Id != item.Id))} style={{borderColor: item.Color}}/>
+                        <TouchableOpacity onPress={ () => setCategories(categories.filter(category => category.Id != item.Id))} style={{borderColor: item.Color}}>
+                            <Icon name='delete'size={20} color='white'/>
+                        </TouchableOpacity>
+                        
                     </View>}
-                    keyExtractor={(item) => item.Id}/>
+                    keyExtractor={(item) => item.Id}/>): (<Text>No categories yet</Text>)}
                 <View style={styles.horizontalLine}/>
                 {!addCategoryVisible && <Button title="Add category" onPress={() => setAddCategoryVisible(!addCategoryVisible)}/>}
                 {addCategoryVisible && <View style={{paddingHorizontal: "20px"}}>

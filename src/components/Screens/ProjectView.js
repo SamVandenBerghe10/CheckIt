@@ -7,6 +7,7 @@ import { Button } from "react-native"
 import { TextInput } from "react-native"
 import { useContext } from "react"
 import { ThemeContext } from "../../../App"
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const ProjectView = ({navigation}) => {
     
@@ -15,7 +16,7 @@ const ProjectView = ({navigation}) => {
     const [projects, setProjects] = useState([])
 
     useEffect(() => {
-        fetch("http://192.168.0.101:3000/projects")
+        fetch("http://localhost:3000/projects")
                 .then(res => res.json())
                 .then(data => {
                     setProjects(data)
@@ -67,7 +68,7 @@ const ProjectView = ({navigation}) => {
                 </View>
             </ScrollView>
             <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addProject}>
-                <Text style={styles.addProjectText}>+</Text>
+                <Icon name='add-circle' color='white' size={20}/>
             </TouchableOpacity>
             <Modal visible={modalVisible} animationType="fade" transparent={true} >
                 <AddProject/>

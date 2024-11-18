@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useContext } from "react"
 import { ThemeContext } from "../../../App"
 import { Platform } from "react-native"
+import Icon from 'react-native-vector-icons/MaterialIcons'; 
 
 
 const TaskListView = ({route}) => {
@@ -21,7 +22,7 @@ const TaskListView = ({route}) => {
     const [tasks, setTasks] = useState([])
 
     useEffect(() => {
-        fetch("http://192.168.0.101:3000/tasks/project/" + project.Id)
+        fetch("http://localhost:3000/tasks/project/" + project.Id)
                 .then(res => res.json())
                 .then(data => {
                     setTasks(data)
@@ -34,7 +35,7 @@ const TaskListView = ({route}) => {
     const [categories, setCategories] = useState([])
 
     useEffect(() => {
-        fetch("http://192.168.0.101:3000/categories")
+        fetch("http://localhost:3000/categories")
                 .then(res => res.json())
                 .then(data => {
                     var temp = [{Id: -1, Name: ""}, ...data]
@@ -48,7 +49,7 @@ const TaskListView = ({route}) => {
     const [priorities, setPriorities] = useState([])
 
     useEffect(() => {
-        fetch("http://192.168.0.101:3000/priorities")
+        fetch("http://localhost:3000/priorities")
                 .then(res => res.json())
                 .then(data => {
                     setPriorities(data)
@@ -61,7 +62,7 @@ const TaskListView = ({route}) => {
     const [selectedPriority, setSelectedPriority] = useState([]);
 
         useEffect(() => {
-            fetch("http://192.168.0.101:3000/priorities/standard")
+            fetch("http://localhost:3000/priorities/standard")
                     .then(res => res.json())
                     .then(data => {
                         setSelectedPriority(data)
@@ -149,7 +150,7 @@ const TaskColumn = ({item, tasks, statusList, categories, priorities, project}) 
             <Text style={styles.taskColumnText}>{item}</Text>
             <FlatList data={tasks.filter(i => i.Status == item)} renderItem={({item}) => <Task task={item}></Task>}/>
             <TouchableOpacity style={styles.addTask} onPress={() => setModalVisible(true)}>
-                <Text>+</Text>
+                <Icon name='add-circle' color='gray' size={20} style={{alignSelf: 'center', margin: 5, borderColor: 'gray', borderRadius: 20, borderWidth: 2}}/>
             </TouchableOpacity>
 
             <Modal visible={modalVisible} animationType="fade" transparent={true} >
@@ -164,7 +165,7 @@ const Task = ({task}) => {
     const [taskCategory, setTaskCategory] = useState([]);
 
     useEffect(() => {
-        fetch("http://192.168.0.101:3000/tasks/"+ task.CategoryId +"/category")
+        fetch("http://localhost:3000/tasks/"+ task.CategoryId +"/category")
                 .then(res => res.json())
                 .then(data => {
                     setTaskCategory(data)
@@ -178,7 +179,7 @@ const Task = ({task}) => {
     var category = taskCategory[0]
     return (
         <TouchableOpacity style={[styles.task, {borderColor: category?.Color}]} onPress={() => navigation.navigate('TaskDetail', {task})}>
-            <Text>{task.Title + " "}{category ? "| " + category.Name : ""}</Text>
+            <Text>{task.Title + " "}{category ? "| " + category.Name : ""}{task?.ParentTaskId ? <Icon name='subdirectory-arrow-right' size={18} color='#000' style={{position: 'absolute', right: 1}}/>: null}</Text>
         </TouchableOpacity>
     )
 }
