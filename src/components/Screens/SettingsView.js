@@ -24,7 +24,7 @@ const SettingsView = () => {
       const [addCategoryColor, setAddCategoryColor] = useState("")
 
     useEffect(() => {
-        fetch("http://localhost:3000/categories")
+        fetch("http://localhost:8080/categories")
                 .then(res => res.json())
                 .then(data => {
                     setCategories(data)
@@ -43,14 +43,14 @@ const SettingsView = () => {
                 {categories.length > 0 ? (<FlatList
                     data={categories}
                     renderItem={({ item }) =>
-                    <View style={[styles.category, styles.task, {borderColor: item.Color}]}>
-                        <Text>{item.Name}</Text>
-                        <TouchableOpacity onPress={ () => setCategories(categories.filter(category => category.Id != item.Id))} style={{borderColor: item.Color}}>
+                    <View style={[styles.category, styles.task, {borderColor: item.color}]}>
+                        <Text>{item.name}</Text>
+                        <TouchableOpacity onPress={ () => setCategories(categories.filter(category => category.id != item.id))} style={{borderColor: item.color}}>
                             <Icon name='delete'size={20} color='white'/>
                         </TouchableOpacity>
                         
                     </View>}
-                    keyExtractor={(item) => item.Id}/>): (<Text>No categories yet</Text>)}
+                    keyExtractor={(item) => item.id}/>): (<Text>No categories yet</Text>)}
                 <View style={styles.horizontalLine}/>
                 {!addCategoryVisible && <Button title="Add category" onPress={() => setAddCategoryVisible(!addCategoryVisible)}/>}
                 {addCategoryVisible && <View style={{paddingHorizontal: "20px"}}>

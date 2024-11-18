@@ -16,7 +16,7 @@ const ProjectView = ({navigation}) => {
     const [projects, setProjects] = useState([])
 
     useEffect(() => {
-        fetch("http://localhost:3000/projects")
+        fetch("http://localhost:8080/projects")
                 .then(res => res.json())
                 .then(data => {
                     setProjects(data)
@@ -80,7 +80,7 @@ const ProjectView = ({navigation}) => {
 const Project = ({navigation, project}) => {
     return (
         <TouchableOpacity onPress={() => navigation.navigate('Tasks', {project})} style={styles.projectTile}>
-            <Text style={styles.projectTileName}>Project {project.Name}</Text>
+            <Text style={styles.projectTileName}>Project {project.name}</Text>
             <Text>Project {project.Description}</Text>
         </TouchableOpacity>
     )

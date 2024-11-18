@@ -22,7 +22,7 @@ const TaskListView = ({route}) => {
     const [tasks, setTasks] = useState([])
 
     useEffect(() => {
-        fetch("http://localhost:3000/tasks/project/" + project.Id)
+        fetch("http://localhost:8080/tasks/project/" + project.id)
                 .then(res => res.json())
                 .then(data => {
                     setTasks(data)
@@ -35,7 +35,7 @@ const TaskListView = ({route}) => {
     const [categories, setCategories] = useState([])
 
     useEffect(() => {
-        fetch("http://localhost:3000/categories")
+        fetch("http://localhost:8080/categories")
                 .then(res => res.json())
                 .then(data => {
                     var temp = [{Id: -1, Name: ""}, ...data]
@@ -49,11 +49,11 @@ const TaskListView = ({route}) => {
     const [priorities, setPriorities] = useState([])
 
     useEffect(() => {
-        fetch("http://localhost:3000/priorities")
+        fetch("http://localhost:8080/priorities/notstandard")
                 .then(res => res.json())
                 .then(data => {
                     setPriorities(data)
-                    console.log("priorities: " + JSON.stringify(data))
+                    console.log("(not standard)priorities: " + JSON.stringify(data))
                 })
                 .catch(error => console.error(error))
       
@@ -62,7 +62,7 @@ const TaskListView = ({route}) => {
     const [selectedPriority, setSelectedPriority] = useState([]);
 
         useEffect(() => {
-            fetch("http://localhost:3000/priorities/standard")
+            fetch("http://localhost:8080/priorities/standard")
                     .then(res => res.json())
                     .then(data => {
                         setSelectedPriority(data)
@@ -76,7 +76,7 @@ const TaskListView = ({route}) => {
     const { isDarkMode, toggleTheme } = useContext(ThemeContext);
     return (
         <View style={[styles.container2,{backgroundColor: isDarkMode ? '#42474f' :'#fff'}]}>
-            <Text style={styles.taskHeader}>{project.Name}</Text>
+            <Text style={styles.taskHeader}>{project.name}</Text>
             <ScrollView horizontal>
             <FlatList data={status} renderItem={({item}) => <TaskColumn item={item} tasks={tasks} statusList={status} categories={categories} priorities={[...selectedPriority, ...priorities]} project={project}/>} numColumns={4}/>
              </ScrollView>
@@ -127,11 +127,11 @@ const TaskColumn = ({item, tasks, statusList, categories, priorities, project}) 
                     </Picker>
                     <Text>Category</Text>
                     <Picker selectedValue={selectedCategory} onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
-                        {categories.map((category) => (<Picker.Item label={category.Name} value={category.Name} key={category.Id}/>))}
+                        {categories.map((category) => (<Picker.Item label={category.name} value={category.name} key={category.id}/>))}
                     </Picker>
                     <Text>Priority</Text>
                     <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
-                        {priorities.map((priority) => (<Picker.Item label={priority.Name} value={priority.Name} key={priority.Id}/>))}
+                        {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.name} key={priority.id}/>))}
                     </Picker>
                     
                     <Button title="Submit" onPress={handleSubmit}/>
@@ -148,7 +148,7 @@ const TaskColumn = ({item, tasks, statusList, categories, priorities, project}) 
     return (
         <View style={styles.taskColumn}>
             <Text style={styles.taskColumnText}>{item}</Text>
-            <FlatList data={tasks.filter(i => i.Status == item)} renderItem={({item}) => <Task task={item}></Task>}/>
+            <FlatList data={tasks.filter(i => i.status == item)} renderItem={({item}) => <Task task={item}></Task>}/>
             <TouchableOpacity style={styles.addTask} onPress={() => setModalVisible(true)}>
                 <Icon name='add-circle' color='gray' size={20} style={{alignSelf: 'center', margin: 5, borderColor: 'gray', borderRadius: 20, borderWidth: 2}}/>
             </TouchableOpacity>
@@ -162,24 +162,10 @@ const TaskColumn = ({item, tasks, statusList, categories, priorities, project}) 
 }
 
 const Task = ({task}) => {
-    const [taskCategory, setTaskCategory] = useState([]);
-
-    useEffect(() => {
-        fetch("http://localhost:3000/tasks/"+ task.CategoryId +"/category")
-                .then(res => res.json())
-                .then(data => {
-                    setTaskCategory(data)
-                    console.log("category of task " + JSON.stringify(data))
-                })
-                .catch(error => console.error(error))
-      
-    }, [])
-
     var navigation = useNavigation()
-    var category = taskCategory[0]
     return (
-        <TouchableOpacity style={[styles.task, {borderColor: category?.Color}]} onPress={() => navigation.navigate('TaskDetail', {task})}>
-            <Text>{task.Title + " "}{category ? "| " + category.Name : ""}{task?.ParentTaskId ? <Icon name='subdirectory-arrow-right' size={18} color='#000' style={{position: 'absolute', right: 1}}/>: null}</Text>
+        <TouchableOpacity style={[styles.task, {borderColor: task.category?.color}]} onPress={() => navigation.navigate('TaskDetail', {task})}>
+            <Text>{task.title + " "}{task.category ? "| " + task.category?.name : ""}{task?.parenttaskid ? <Icon name='subdirectory-arrow-right' size={18} color='#000' style={{position: 'absolute', right: 1}}/>: null}</Text>
         </TouchableOpacity>
     )
 }

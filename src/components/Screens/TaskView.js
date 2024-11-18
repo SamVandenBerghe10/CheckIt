@@ -9,7 +9,7 @@ const TaskView = ({route}) => {
     const { isDarkMode, toggleTheme } = useContext(ThemeContext);
     return (
         <View style={[styles.container, {backgroundColor: isDarkMode ? '#42474f' :'#fff'}]}>
-            <Text>{task.Title}</Text>
+            <Text>{task.title}</Text>
         </View>
         
     )
