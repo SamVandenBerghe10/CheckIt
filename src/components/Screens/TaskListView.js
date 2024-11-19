@@ -141,14 +141,12 @@ const TaskColumn = ({item, tasks, statusList, categories, priorities, project}) 
                 </TouchableWithoutFeedback>
             </TouchableOpacity>
             </View>
-            
-            
         );
     }
     return (
         <View style={styles.taskColumn}>
             <Text style={styles.taskColumnText}>{item}</Text>
-            <FlatList data={tasks.filter(i => i.status == item)} renderItem={({item}) => <Task task={item}></Task>}/>
+            <FlatList data={tasks.filter(i => i.status == item && i.parenttaskid == null)} renderItem={({item}) => <Task task={item}></Task>}/>
             <TouchableOpacity style={styles.addTask} onPress={() => setModalVisible(true)}>
                 <Icon name='add-circle' color='gray' size={20} style={{alignSelf: 'center', margin: 5, borderColor: 'gray', borderRadius: 20, borderWidth: 2}}/>
             </TouchableOpacity>
@@ -161,11 +159,11 @@ const TaskColumn = ({item, tasks, statusList, categories, priorities, project}) 
     )
 }
 
-const Task = ({task}) => {
+export const Task = ({task}) => {
     var navigation = useNavigation()
     return (
         <TouchableOpacity style={[styles.task, {borderColor: task.category?.color}]} onPress={() => navigation.navigate('TaskDetail', {task})}>
-            <Text>{task.title + " "}{task.category ? "| " + task.category?.name : ""}{task?.parenttaskid ? <Icon name='subdirectory-arrow-right' size={18} color='#000' style={{position: 'absolute', right: 1}}/>: null}</Text>
+            <Text>{task.title + " "}{task.category ? "| " + task.category?.name : ""}{task.childtasks.length > 0 ? <Icon name='subdirectory-arrow-right' size={18} color='#000' style={{position: 'absolute', right: 1}}/>: null}</Text>
         </TouchableOpacity>
     )
 }
