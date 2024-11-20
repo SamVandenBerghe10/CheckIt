@@ -13,14 +13,14 @@ import { useNavigation } from '@react-navigation/native';
 import { useContext } from "react"
 import { ThemeContext } from "../../../App"
 import { Platform } from "react-native"
-import Icon from 'react-native-vector-icons/MaterialIcons'; 
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 
 const TaskListView = ({route}) => {
     var {project} = route.params
 
     const [tasks, setTasks] = useState([])
-
+    
     useEffect(() => {
         fetch("http://localhost:8080/tasks/project/" + project.id)
                 .then(res => res.json())
@@ -78,13 +78,13 @@ const TaskListView = ({route}) => {
         <View style={[styles.container2,{backgroundColor: isDarkMode ? '#42474f' :'#fff'}]}>
             <Text style={styles.taskHeader}>{project.name}</Text>
             <ScrollView horizontal>
-            <FlatList data={status} renderItem={({item}) => <TaskColumn item={item} tasks={tasks} statusList={status} categories={categories} priorities={[...selectedPriority, ...priorities]} project={project}/>} numColumns={4}/>
+            <FlatList data={status} renderItem={({item}) => <TaskColumn item={item} tasks={tasks} setTasks={setTasks} statusList={status} categories={categories} priorities={[...selectedPriority, ...priorities]} project={project}/>} numColumns={4}/>
              </ScrollView>
         </View>
     )
 }
 
-const TaskColumn = ({item, tasks, statusList, categories, priorities, project}) => {
+const TaskColumn = ({item, tasks, setTasks, statusList, categories, priorities, project}) => {
     const [modalVisible, setModalVisible] = useState(false);
 
     const AddTask = ({status}) => {
@@ -93,19 +93,18 @@ const TaskColumn = ({item, tasks, statusList, categories, priorities, project}) 
         const [deadline, setDeadline] = useState('');
         const [selectedStatus, setSelectedStatus] = useState(item);
         const [selectedCategory, setSelectedCategory] = useState("");
-        const [selectedPriority, setSelectedPriority] = useState({});
+        const [selectedPriority, setSelectedPriority] = useState(priorities[0].id);
     
         const handleSubmit = () => {
-            var temp ={Id: -1, Title: title, Description: description, Deadline: deadline, Status: selectedStatus, ProjectId: project.Id,CategoryId: selectedCategory, Priority: selectedPriority} // selectedCategory && selectedPriorty nog niet correct(Id)
-            tasks.push(temp)
+            var temp ={id: -1, title: title, description: description, deadline: deadline, status: selectedStatus, projectid: project.id, categoryid: selectedCategory, priorityid: selectedPriority, childtasks: []}
+            postTask(temp, setTasks)
             setModalVisible(false)
             setTitle('')
             setDescription('')
             setDeadline('')
             setSelectedStatus(item)
             setSelectedCategory("")
-            setSelectedPriority({})
-            console.log('post new task: '+ JSON.stringify(temp))
+            setSelectedPriority(priorities[0].id)
         };
     
         return (
@@ -119,7 +118,7 @@ const TaskColumn = ({item, tasks, statusList, categories, priorities, project}) 
                     <TextInput placeholder="Task Title" onChangeText={(text) => setTitle(text)} value={title} style={styles.addProjectInput} label/>
                     <Text>Task description:</Text>
                     <TextInput placeholder="Task Description" onChangeText={(text) => setDescription(text)} value={description} multiline numberOfLines={4} style={styles.addProjectInput}/>
-                    <Text>Deadline (YYYY-MM-DD HH:MM:SS):</Text>
+                    <Text>Deadline (yyyy-MM-dd HH:mm:ss):</Text>
                     <TextInput placeholder="Task deadline" onChangeText={(text) => setDeadline(text)} value={deadline} style={styles.addProjectInput} label/>
                     <Text>Status</Text>
                     <Picker selectedValue={selectedStatus} onValueChange={(itemValue, itemIndex) => setSelectedStatus(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
@@ -127,11 +126,11 @@ const TaskColumn = ({item, tasks, statusList, categories, priorities, project}) 
                     </Picker>
                     <Text>Category</Text>
                     <Picker selectedValue={selectedCategory} onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
-                        {categories.map((category) => (<Picker.Item label={category.name} value={category.name} key={category.id}/>))}
+                        {categories.map((category) => (<Picker.Item label={category.name} value={category.id} key={category.id}/>))}
                     </Picker>
                     <Text>Priority</Text>
                     <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
-                        {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.name} key={priority.id}/>))}
+                        {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id}/>))}
                     </Picker>
                     
                     <Button title="Submit" onPress={handleSubmit}/>
@@ -163,9 +162,32 @@ export const Task = ({task}) => {
     var navigation = useNavigation()
     return (
         <TouchableOpacity style={[styles.task, {borderColor: task.category?.color}]} onPress={() => navigation.navigate('TaskDetail', {task})}>
-            <Text>{task.title + " "}{task.category ? "| " + task.category?.name : ""}{task.childtasks.length > 0 ? <Icon name='subdirectory-arrow-right' size={18} color='#000' style={{position: 'absolute', right: 1}}/>: null}</Text>
+            <Text>{task.title + " "}{task.category ? "| " + task.category?.name : ""}{task.childtasks?.length > 0 ? <Icon name='account-tree' size={18} color='#000' style={{position: 'absolute', right: 1}}/>: null}</Text>
         </TouchableOpacity>
     )
 }
+
+const postTask = async (data, setTasks) => {
+    try {
+      const response = await fetch('http://localhost:8080/tasks/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json()
+      setTasks((prevTasks) => [...prevTasks, result])
+      console.log('Response:', result.title);
+      
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
+  };
 
 export default TaskListView

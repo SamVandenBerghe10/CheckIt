@@ -33,7 +33,8 @@ const ProjectView = ({navigation}) => {
         const [description, setDescription] = useState('');
     
         const handleSubmit = () => {
-            projects.push({Id: -1, Name: name, Description: description})
+            var temp = {Id: -1, name: name, description: description}
+            postProject(temp, setProjects)
             setModalVisible(false)
             setName("")
             setDescription("")
@@ -88,7 +89,28 @@ const Project = ({navigation, project}) => {
 
 
 
+const postProject = async (data, setTasks) => {
+    try {
+      const response = await fetch('http://localhost:8080/projects/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
+      const result = await response.json()
+      setTasks((prevTasks) => [...prevTasks, result])
+      console.log('Response:', result.title);
+      
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
+  };
 
 
 
