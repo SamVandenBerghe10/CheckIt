@@ -60,20 +60,19 @@ export const styles = StyleSheet.create({
         alignSelf: "flex-start"
     },
     taskColumn: {
-        flex: 1,
         width: 300,
         height: 'auto',
         margin: 20,
         padding: 10,
         borderRadius: 15,
         backgroundColor: 'gray',
-        justifyContent: 'flex-end',
         alignItems: 'center',
     },
     taskColumnText: {
-        flex: 1,
+        //flex: 1,
         fontWeight: 'bold',
         color: 'white',
+        justifyContent: 'flex-start',
     },
     task: {
         width: 250,
@@ -157,5 +156,22 @@ export const styles = StyleSheet.create({
         borderRadius: 10, 
         padding: 5,
         width: '30%'
-    }
+    },
+    childTask: {
+        flex: 1,
+        position: 'absolute',
+        bottom: 1
+    },
+    updateTask: {
+        position: 'absolute',
+        bottom: 20,
+        left: 20,
+        width: 50,
+        height: 50,
+        backgroundColor: 'green',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 15,
+        
+    },
   });

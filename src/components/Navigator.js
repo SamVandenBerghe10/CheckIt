@@ -33,7 +33,12 @@ const Navigator = () => {
                     return <Icon name={iconName} size={size} color={color} />;
                   },
             })}>
-                <Tab.Screen name="Home" component={HomeScreenView} options={{title: 'Projects', headerShown:false}} />
+                <Tab.Screen name="Home" component={HomeScreenView} options={{title: 'Projects', headerShown:false}} listeners={({ navigation }) => ({
+                  tabPress: (e) => {
+                    e.preventDefault();
+                    navigation.navigate('Home', {screen: 'Projects', });
+                  },
+                })}/>
                 <Tab.Screen name="Settings" component={SettingsView} options={{title: 'Settings'}} />
             </Tab.Navigator>
         </NavigationContainer>

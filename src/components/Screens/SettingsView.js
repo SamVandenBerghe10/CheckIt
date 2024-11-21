@@ -13,6 +13,7 @@ import { ScrollView } from "react-native"
 import ColorPicker from 'react-native-wheel-color-picker'
 import { ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { postObject } from "./TaskListView"
 
 const SettingsView = () => {
       const { isDarkMode, toggleTheme } = useContext(ThemeContext);
@@ -24,7 +25,7 @@ const SettingsView = () => {
       const [addCategoryColor, setAddCategoryColor] = useState("")
 
     useEffect(() => {
-        fetch("http://localhost:8080/categories")
+        fetch("http://192.168.0.204:8080/categories")
                 .then(res => res.json())
                 .then(data => {
                     setCategories(data)
@@ -33,6 +34,9 @@ const SettingsView = () => {
                 .catch(error => console.error(error))
       
     }, [])
+    const handleSubmit = (categoryId) => {
+        deleteCategory(categories, setCategories, '/categories/delete/',categoryId)
+    }
     return (
         <View style={[styles.container, {backgroundColor: isDarkMode ? '#42474f' :'#fff'}]}>
             <ScrollView style={{width:'75%'}}>
@@ -45,7 +49,7 @@ const SettingsView = () => {
                     renderItem={({ item }) =>
                     <View style={[styles.category, styles.task, {borderColor: item.color}]}>
                         <Text>{item.name}</Text>
-                        <TouchableOpacity onPress={ () => setCategories(categories.filter(category => category.id != item.id))} style={{borderColor: item.color}}>
+                        <TouchableOpacity onPress={ () => handleSubmit(item.id)} style={{borderColor: item.color}}>
                             <Icon name='delete'size={20} color='white'/>
                         </TouchableOpacity>
                         
@@ -75,7 +79,8 @@ const SettingsView = () => {
                     style={{margin: 20}}
                     />
                         <Button title="save" onPress={() => {
-                            categories.push({Id: -1, Name: addCategoryName, Description: addCategoryDescription, color: addCategoryDescription})
+                            var temp = {id: -1, name: addCategoryName, description: addCategoryDescription, color: addCategoryColor}
+                            postObject(temp, setCategories, '/categories/add')
                             setAddCategoryVisible(false)
                             setAddCategoryName("")
                             setAddCategoryDescription("")
@@ -94,5 +99,26 @@ const SettingsView = () => {
         
     )
 }
+
+const deleteCategory = async (data, setState, urlExtention, id) => {
+    try {
+      const response = await fetch('http://192.168.0.204:8080' + urlExtention + id, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      setState((prevCategories) => prevCategories.filter((category) => category.id != id))
+      console.log('Response: ', response);
+      
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
+  };
 
 export default SettingsView
