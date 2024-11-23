@@ -41,7 +41,7 @@ const SettingsView = () => {
       const [addCategoryColor, setAddCategoryColor] = useState("")
 
     useEffect(() => {
-        fetch("http://192.168.0.101:8080/categories")
+        fetch("http://192.168.0.204:8080/categories")
                 .then(res => res.json())
                 .then(data => {
                     setCategories(data)
@@ -66,7 +66,7 @@ const SettingsView = () => {
                 renderItem={({ item }) =>
                   <View style={[styles.category, themeStyles.task, {borderColor: item.color}]}>
                     <Text style={themeStyles.taskText}>{item.name}</Text>
-                    <TouchableOpacity onPress={ () => handleSubmit(item.id)} style={{borderColor: item.color}}>
+                    <TouchableOpacity onLongPress={ () => handleSubmit(item.id)} style={{borderColor: item.color}}>
                       <Icon name='delete'size={20} color={isDarkMode ? '#f0f0f0' : '#0a3d62'}/>
                     </TouchableOpacity>
                   </View>}
@@ -118,8 +118,8 @@ const SettingsView = () => {
 
 const deleteCategory = async (data, setState, urlExtention, id) => {
     try {
-      const response = await fetch('http://192.168.0.101:8080' + urlExtention + id, {
-        method: 'POST',
+      const response = await fetch('http://192.168.0.204:8080' + urlExtention + id, {
+        method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },

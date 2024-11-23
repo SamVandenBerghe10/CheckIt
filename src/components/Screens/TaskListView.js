@@ -15,28 +15,30 @@ import { ThemeContext } from "../../../App"
 import { Platform } from "react-native"
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ThemeStyles } from "../../themes/themeStyles"
-
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 
 const TaskListView = ({route}) => {
     var {project} = route.params
 
     const [tasks, setTasks] = useState([])
     
-    useEffect(() => {
-        fetch("http://192.168.0.101:8080/tasks/project/" + project.id)
+    useFocusEffect(
+        useCallback(() => {
+        fetch("http://192.168.0.204:8080/tasks/project/" + project.id)
                 .then(res => res.json())
                 .then(data => {
                     setTasks(data)
                     console.log("tasks: " + JSON.stringify(data))
                 })
                 .catch(error => console.error(error))
-      
-    }, [])
+    }, []))
 
     const [categories, setCategories] = useState([])
 
-    useEffect(() => {
-        fetch("http://192.168.0.101:8080/categories")
+    useFocusEffect(
+        useCallback(() => {
+        fetch("http://192.168.0.204:8080/categories")
                 .then(res => res.json())
                 .then(data => {
                     var temp = [{id: 99999999, name: ""}, ...data]
@@ -44,13 +46,12 @@ const TaskListView = ({route}) => {
                     console.log("categories: " + JSON.stringify(temp))
                 })
                 .catch(error => console.error(error))
-      
-    }, [])
+    }, []))
 
     const [priorities, setPriorities] = useState([])
 
     useEffect(() => {
-        fetch("http://192.168.0.101:8080/priorities/sorted")
+        fetch("http://192.168.0.204:8080/priorities/sorted")
                 .then(res => res.json())
                 .then(data => {
                     setPriorities(data)
@@ -202,7 +203,7 @@ const AddTask = ({status, setModalVisible, project, statusList, categories, prio
 
 export const postObject = async (data, setState, urlExtention) => {
     try {
-      const response = await fetch('http://192.168.0.101:8080' + urlExtention, {
+      const response = await fetch('http://192.168.0.204:8080' + urlExtention, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

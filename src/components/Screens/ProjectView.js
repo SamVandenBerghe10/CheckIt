@@ -29,7 +29,7 @@ const ProjectView = ({navigation}) => {
     const [projects, setProjects] = useState([])
 
     useEffect(() => {
-        fetch("http://192.168.0.101:8080/projects")
+        fetch("http://192.168.0.204:8080/projects")
                 .then(res => res.json())
                 .then(data => {
                     setProjects(data)

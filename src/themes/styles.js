@@ -61,7 +61,6 @@ export const styles = StyleSheet.create({
     },
     taskColumn: {
         width: 300,
-        height: 'auto',
         margin: 20,
         padding: 10,
         borderRadius: 15,
@@ -207,10 +206,11 @@ export const styles = StyleSheet.create({
         width: '80%',
         margin: 30,
         borderRadius: 20,
-        padding: 10
+        paddingHorizontal: 10,
+        paddingTop: 5
     },
     taskDetailInfo: {
-        height: 240,
+        height: 255,
         borderRadius: 10,
         padding: 10,
     },

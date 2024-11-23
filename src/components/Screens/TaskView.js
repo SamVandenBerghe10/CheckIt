@@ -18,6 +18,9 @@ import { Button } from "react-native";
 import moment from "moment";
 import { ThemeStyles } from "../../themes/themeStyles";
 import { Dimensions } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
+import { useCallback } from "react";
 
 const TaskView = ({route}) => {
     
@@ -27,11 +30,32 @@ const TaskView = ({route}) => {
     const themeStyles = ThemeStyles(isDarkMode)
 
     const [task, setTask] = useState(temp);
+
+    useFocusEffect(
+        useCallback(() => {
+        fetch("http://192.168.0.204:8080/tasks/" + task.id)
+                .then(res => res.json())
+                .then(data => {
+                    setTask(data)
+                    console.log("task: " + JSON.stringify(data))
+                })
+                .catch(error => console.error(error))
+      
+    }, []))
+
     const [modalVisible, setModalVisible] = useState(false);
     const [modalAddVisible, setModalAddVisible] = useState(false);
+    const navigation = useNavigation()
+    const handleDelete = (task, navigation) => {
+
+        deleteTask(task, navigation);
+    }
     return (
         <View style={[styles.container, themeStyles.container]}>
             <ScrollView style={[styles.taskDetailContainer, themeStyles.projectTile]}>
+            <TouchableOpacity onLongPress={ () => handleDelete(task, navigation)} style={{position: 'absolute', right: 5, top: 5}}>
+                <Icon name='delete'size={20} color={isDarkMode ? '#0a3d62' : '#f0f0f0'}/>
+            </TouchableOpacity>
             <Text style={[styles.addProjectTitle, themeStyles.rProjectTile, themeStyles.rProjectTileName]}>{task.title}</Text>
                 <View style={[styles.taskDetailInfo ,themeStyles.childTaskContainer]}>
                     <Text style={[styles.inputlabel, themeStyles.taskText]}>Description:</Text>
@@ -75,7 +99,7 @@ const TaskView = ({route}) => {
     )
 }
 //{item.childtasks?.length > 0 ? (<SubTask task={item} />) : null}
-const SubTask = ({task, statusList, categories, priorities}) => {
+const SubTask = ({task, statusList, categories, priorities, onGoBack}) => {
     const [columnsNumber, setColumns] = useState(Math.floor((Dimensions.get('window').width - (Dimensions.get('window').width/300)*30)/300))
 
     useEffect(() => {
@@ -91,7 +115,7 @@ const SubTask = ({task, statusList, categories, priorities}) => {
 
     return (
         <FlatList data={task.childtasks} renderItem={({item}) => (
-            <Task task={item} statusList={statusList} categories={categories} priorities={priorities}/>
+            <Task task={item} statusList={statusList} categories={categories} priorities={priorities} onGoBack={onGoBack}/>
         )} numColumns={columnsNumber} key={columnsNumber}/>
     )
 }
@@ -154,7 +178,7 @@ const AddTask = ({parenttask, status, setModalVisible, project, statusList, cate
 
 const postObject = async (data, setState, urlExtention) => {
     try {
-      const response = await fetch('http://192.168.0.101:8080' + urlExtention, {
+      const response = await fetch('http://192.168.0.204:8080' + urlExtention, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -167,7 +191,7 @@ const postObject = async (data, setState, urlExtention) => {
       }
 
       const result = await response.json()
-      setState((task) => ({...task, childtasks: [...task.childtasks, result]}))
+      setState((task) => ({...task, childtasks: [...task.childtasks || [], result]}))
       console.log('Response: ', response);
       
     } catch (error) {
@@ -233,8 +257,8 @@ const EditTask = ({task, status, setModalVisible, project, statusList, categorie
 
 const updateTask = async (data, setState, urlExtention, id) => {
     try {
-      const response = await fetch('http://192.168.0.101:8080' + urlExtention + id, {
-        method: 'POST',
+      const response = await fetch('http://192.168.0.204:8080' + urlExtention + id, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -247,11 +271,32 @@ const updateTask = async (data, setState, urlExtention, id) => {
       const result = await response.json()
       setState((prevTasks) => result)
       console.log('Response: ', response);
-      navigation.navigate('Home', {screen: 'Projects', });
       
     } catch (error) {
       console.error('Error:', error.message);
     }
   };
+
+  const deleteTask = async (task, navigation) => {
+    try {
+        console.log("delete task: " + task.id)
+        const response = await fetch('http://192.168.0.204:8080/tasks/delete/' + task.id, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+    
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        console.log('Response: ', response);
+        navigation.goBack()
+        
+      } catch (error) {
+        console.error('Error:', error.message);
+      }
+  }
 
 export default TaskView;
