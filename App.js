@@ -1,19 +1,12 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet } from 'react-native';
-import Navigator from './src/components/Navigator.js';
-import { SafeAreaView } from 'react-native';
 import { createContext } from 'react';
 import { useState } from 'react';
+import AppContent from './src/components/Screens/AppContent.js';
 
 export default function App() {
   return (
     <ThemeProvider>
-      <SafeAreaView style={styles.container}>
-        <StatusBar style="auto" />
-        <Navigator/>
-      </SafeAreaView>
+      <AppContent/>
     </ThemeProvider>
-    
   );
 }
 
@@ -36,14 +29,5 @@ const ThemeProvider = ({ children }) => {
 
   );
 };
-
-export const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-});
-
-
 
 export { ThemeContext };

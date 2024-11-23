@@ -14,6 +14,7 @@ import { useContext } from "react"
 import { ThemeContext } from "../../../App"
 import { Platform } from "react-native"
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { ThemeStyles } from "../../themes/themeStyles"
 
 
 const TaskListView = ({route}) => {
@@ -22,7 +23,7 @@ const TaskListView = ({route}) => {
     const [tasks, setTasks] = useState([])
     
     useEffect(() => {
-        fetch("http://192.168.0.204:8080/tasks/project/" + project.id)
+        fetch("http://192.168.0.101:8080/tasks/project/" + project.id)
                 .then(res => res.json())
                 .then(data => {
                     setTasks(data)
@@ -35,7 +36,7 @@ const TaskListView = ({route}) => {
     const [categories, setCategories] = useState([])
 
     useEffect(() => {
-        fetch("http://192.168.0.204:8080/categories")
+        fetch("http://192.168.0.101:8080/categories")
                 .then(res => res.json())
                 .then(data => {
                     var temp = [{id: 99999999, name: ""}, ...data]
@@ -49,7 +50,7 @@ const TaskListView = ({route}) => {
     const [priorities, setPriorities] = useState([])
 
     useEffect(() => {
-        fetch("http://192.168.0.204:8080/priorities/sorted")
+        fetch("http://192.168.0.101:8080/priorities/sorted")
                 .then(res => res.json())
                 .then(data => {
                     setPriorities(data)
@@ -60,10 +61,12 @@ const TaskListView = ({route}) => {
     }, [])
 
     const statusList = ["Nog doen", "Mee bezig", "Nakijken", "Klaar"]
+
     const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+    const themeStyles = ThemeStyles(isDarkMode)
     return (
-        <View style={[styles.container2,{backgroundColor: isDarkMode ? '#42474f' :'#fff'}]}>
-            <Text style={styles.taskHeader}>{project.name}</Text>
+        <View style={[styles.container2, themeStyles.container]}>
+            <Text style={[styles.taskHeader ,themeStyles.projectTile, themeStyles.projectTileName]}>{project.name}</Text>
             <ScrollView horizontal>
                 <FlatList data={statusList} renderItem={({item}) => <TaskColumn status={item} tasks={tasks} setTasks={setTasks} statusList={statusList} categories={categories} priorities={priorities} project={project}/>} numColumns={4}/>
             </ScrollView>
@@ -73,12 +76,15 @@ const TaskListView = ({route}) => {
 
 const TaskColumn = ({status, tasks, setTasks, statusList, categories, priorities, project}) => {
     const [modalVisible, setModalVisible] = useState(false);
+
+    const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+    const themeStyles = ThemeStyles(isDarkMode)
     return (
-        <View style={styles.taskColumn}>
-            <Text style={styles.taskColumnText}>{status}</Text>
+        <View style={[styles.taskColumn, themeStyles.taskColumn]}>
+            <Text style={[styles.taskColumnText, themeStyles.projectTileName]}>{status}</Text>
             <FlatList data={tasks.filter(i => i.status == status && i.parenttaskid == null)} renderItem={({item}) => <Task task={item} statusList={statusList} categories={categories} priorities={priorities} project={project}></Task>}/>
             <TouchableOpacity style={styles.addTask} onPress={() => setModalVisible(true)}>
-                <Icon name='add-circle' color='gray' size={20} style={{alignSelf: 'center', margin: 5}}/>
+                <Icon name='add-circle' color='#0a3d62' size={20} style={{alignSelf: 'center', margin: 2}}/>
             </TouchableOpacity>
             <Modal visible={modalVisible} animationType="fade" transparent={true} >
                 <AddTask status={status} setModalVisible={setModalVisible} project={project} statusList={statusList} categories={categories} priorities={priorities} setTasks={setTasks}/>
@@ -88,18 +94,25 @@ const TaskColumn = ({status, tasks, setTasks, statusList, categories, priorities
 }
 
 export const Task = ({task, statusList, categories, priorities}) => {
+    const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+    const themeStyles = ThemeStyles(isDarkMode)
+
     var navigation = useNavigation()
     var temp = task
     return (
-        <TouchableOpacity style={[styles.task, {borderColor: task.category?.color}]} onPress={() => navigation.push('TaskDetail', {temp, statusList, categories, priorities})}>
-            <Text>{task.title + " "}{task.category ? "| " + task.category?.name + " | ": ""}{<PriorityIndicator priority={task.priority} style={{position: 'absolute', right: 1}}/>}{task.childtasks?.length > 0 ? <Icon name='account-tree' size={18} color='#000' style={{position: 'absolute', right: 1}}/>: null}</Text>
+        <TouchableOpacity style={[styles.task, themeStyles.task, {borderColor: task.category?.color}]} onPress={() => navigation.push('TaskDetail', {temp, statusList, categories, priorities})}>
+            <Text style={themeStyles.taskText}>{task.title + " "}{task.category ? "| " + task.category?.name + " | ": ""}{<PriorityIndicator priority={task.priority} style={{position: 'absolute', right: 1}}/>}{task.childtasks?.length > 0 ? <Icon name='account-tree' size={18} color={themeStyles.taskText} style={{position: 'absolute', right: 1}}/>: null}</Text>
         </TouchableOpacity>
     )
 }
 
 export const PriorityIndicator = ({priority}) =>{
+    const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+    const themeStyles = ThemeStyles(isDarkMode)
+
     var showPriority = ""
     var color = ""
+    var bgColor = false
     if(priority == null)
     {
         return null
@@ -115,7 +128,8 @@ export const PriorityIndicator = ({priority}) =>{
     } else if(priority.sequence == 3)
     {
         showPriority = "minimize"
-        color = "yellow"
+        color = "#f2c213"
+        bgColor = true
     } else if(priority.sequence == 4)
     {
         showPriority = "keyboard-arrow-down"
@@ -157,26 +171,26 @@ const AddTask = ({status, setModalVisible, project, statusList, categories, prio
             <View style={styles.addProjectForm}>
                 <ScrollView>
                 <Text style={styles.addProjectTitle}>Add a new Task in "{status}"</Text>
-                <Text>Project Title:</Text>
-                <TextInput placeholder="Task Title" placeholderTextColor={"gray"} onChangeText={(text) => setTitle(text)} value={title} style={styles.addProjectInput} label/>
-                <Text>Task description:</Text>
-                <TextInput placeholder="Task Description" placeholderTextColor={"gray"} onChangeText={(text) => setDescription(text)} value={description} multiline numberOfLines={4} style={styles.addProjectInput}/>
-                <Text>Deadline (yyyy-MM-dd HH:mm:ss):</Text>
-                <TextInput placeholder="Task deadline" placeholderTextColor={"gray"} onChangeText={(text) => setDeadline(text)} value={deadline} style={styles.addProjectInput} label/>
-                <Text>Status</Text>
+                <Text style={styles.inputlabel}>Project Title:</Text>
+                <TextInput placeholder="title" placeholderTextColor={"gray"} onChangeText={(text) => setTitle(text)} value={title} style={styles.addProjectInput} label/>
+                <Text style={styles.inputlabel}>Task description:</Text>
+                <TextInput placeholder="description" placeholderTextColor={"gray"} onChangeText={(text) => setDescription(text)} value={description} multiline numberOfLines={4} style={styles.addProjectInput}/>
+                <Text style={styles.inputlabel}>Deadline (yyyy-MM-dd HH:mm:ss):</Text>
+                <TextInput placeholder=" yyyy-MM-dd HH:mm:ss" placeholderTextColor={"gray"} onChangeText={(text) => setDeadline(text)} value={deadline} style={styles.addProjectInput} label/>
+                <Text style={styles.inputlabel}>Status</Text>
                 <Picker selectedValue={selectedStatus} onValueChange={(itemValue, itemIndex) => setSelectedStatus(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
                     {statusList.map((statusItem) => (<Picker.Item label={statusItem} value={statusItem} key={statusItem}/>))}
                 </Picker>
-                <Text>Category</Text>
+                <Text style={styles.inputlabel}>Category</Text>
                 <Picker selectedValue={selectedCategory} onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
                     {categories.map((category) => (<Picker.Item label={category.name} value={category.id} key={category.id}/>))}
                 </Picker>
-                <Text>Priority</Text>
+                <Text style={styles.inputlabel}>Priority</Text>
                 <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
                     {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id}/>))}
                 </Picker>
                 
-                <Button title="Submit" onPress={handleSubmit}/>
+                <Button title="add task" onPress={handleSubmit} color='#1169d4'/>
                 </ScrollView>
                 
             </View>
@@ -188,7 +202,7 @@ const AddTask = ({status, setModalVisible, project, statusList, categories, prio
 
 export const postObject = async (data, setState, urlExtention) => {
     try {
-      const response = await fetch('http://192.168.0.204:8080' + urlExtention, {
+      const response = await fetch('http://192.168.0.101:8080' + urlExtention, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

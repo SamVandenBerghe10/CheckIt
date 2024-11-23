@@ -9,15 +9,27 @@ import { useContext } from "react"
 import { ThemeContext } from "../../../App"
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { postObject } from "./TaskListView"
+import { ThemeStyles } from "../../themes/themeStyles"
 
 const ProjectView = ({navigation}) => {
     
     const [columnsNumber, setColumns] = useState(Math.floor((Dimensions.get('window').width - (Dimensions.get('window').width/300)*30)/300))
+
+    useEffect(() => {
+        const updateNumColumns = () => {
+            setColumns(Math.floor((Dimensions.get('window').width - (Dimensions.get('window').width/300)*30)/300));
+        };
+    
+        updateNumColumns();
+    
+        const subscription = Dimensions.addEventListener('change', updateNumColumns);
+        return () => subscription.remove();
+      }, []);
  
     const [projects, setProjects] = useState([])
 
     useEffect(() => {
-        fetch("http://192.168.0.204:8080/projects")
+        fetch("http://192.168.0.101:8080/projects")
                 .then(res => res.json())
                 .then(data => {
                     setProjects(data)
@@ -30,14 +42,11 @@ const ProjectView = ({navigation}) => {
     const [modalVisible, setModalVisible] = useState(false);
 
     const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+    const themeStyles = ThemeStyles(isDarkMode)
     return (
-        <View style={[styles.container, {backgroundColor: isDarkMode ? '#42474f' :'#fff'}]}>
-            <Text style={styles.header}>CheckIt!</Text>
-            <ScrollView>
-                <View>
-                    <FlatList data={projects} renderItem={({item}) => <Project navigation={navigation} project={item}/>} numColumns={columnsNumber}/>
-                </View>
-            </ScrollView>
+        <View style={[styles.container, themeStyles.container]}>
+            <Text style={[styles.header, themeStyles.header]}><Icon name='done-all' color='#1169d4' size={40}/>CheckIt!</Text>
+            <FlatList key={columnsNumber} data={projects} renderItem={({item}) => <Project navigation={navigation} project={item}/>} numColumns={columnsNumber}/>
             <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.addProject}>
                 <Icon name='add-circle' color='white' size={20}/>
             </TouchableOpacity>
@@ -49,10 +58,12 @@ const ProjectView = ({navigation}) => {
 }
 
 const Project = ({navigation, project}) => {
+    const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+    const themeStyles = ThemeStyles(isDarkMode)
     return (
-        <TouchableOpacity onPress={() => navigation.navigate('Tasks', {project})} style={styles.projectTile}>
-            <Text style={styles.projectTileName}>Project {project.name}</Text>
-            <Text>{project.description}</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Tasks', {project})} style={[styles.projectTile, themeStyles.projectTile]}>
+            <Text style={[styles.projectTileName, themeStyles.projectTileName]}>Project {project.name}</Text>
+            <Text style={themeStyles.projectTileDescription}>{project.description}</Text>
         </TouchableOpacity>
     )
 }
@@ -75,11 +86,11 @@ const AddProject = ({setModalVisible, setProjects}) => {
             <TouchableWithoutFeedback >
             <View style={styles.addProjectForm}>
                 <Text style={styles.addProjectTitle}>Add a new Project!</Text>
-                <Text>Project name:</Text>
-                <TextInput placeholder="Project Name" placeholderTextColor={"gray"} onChangeText={(text) => setName(text)} value={name} style={styles.addProjectInput} label/>
-                <Text>Project description:</Text>
-                <TextInput placeholder="Project Description" placeholderTextColor={"gray"} onChangeText={(text) => setDescription(text)} value={description} multiline numberOfLines={4} style={styles.addProjectInput}/>
-                <Button title="Submit" onPress={handleSubmit}/>
+                <Text style={styles.inputlabel}>Project name:</Text>
+                <TextInput placeholder="name" placeholderTextColor={"gray"} onChangeText={(text) => setName(text)} value={name} style={styles.addProjectInput} label/>
+                <Text style={styles.inputlabel}>Project description:</Text>
+                <TextInput placeholder="description" placeholderTextColor={"gray"} onChangeText={(text) => setDescription(text)} value={description} multiline numberOfLines={4} style={styles.addProjectInput}/>
+                <Button title="add project" onPress={handleSubmit} color='#1169d4'/>
             </View>
             </TouchableWithoutFeedback>
         </TouchableOpacity>

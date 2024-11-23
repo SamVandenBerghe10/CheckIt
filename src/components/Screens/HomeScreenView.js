@@ -6,14 +6,16 @@ import TaskListView from './TaskListView'
 import TaskView from './TaskView'
 import { useContext } from 'react'
 import { ThemeContext } from '../../../App'
+import { ThemeStyles } from '../../themes/themeStyles'
 
 const Stack = createNativeStackNavigator()
 
 const HomeScreenView = () => {
     const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+    const themeStyles = ThemeStyles(isDarkMode)
     return (
         <Stack.Navigator screenOptions={{
-            headerStyle: {backgroundColor: isDarkMode ? '#232529' :'#fff'},
+            headerStyle: themeStyles.nav,
             headerTintColor:isDarkMode ? '#fff' : '#000000',
             }}>
             <Stack.Group>

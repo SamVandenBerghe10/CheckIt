@@ -3,7 +3,7 @@ import HomeScreenView from "./Screens/HomeScreenView";
 import { useContext } from "react";
 import { ThemeContext } from "../../App";
 import Icon from 'react-native-vector-icons/MaterialIcons';
-
+import { ThemeStyles } from "../themes/themeStyles";
 
 
 import { NavigationContainer } from '@react-navigation/native';
@@ -15,11 +15,12 @@ const Tab = createBottomTabNavigator();
 
 const Navigator = () => {
     const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+    const themeStyles = ThemeStyles(isDarkMode)
     return (
         <NavigationContainer>
             <Tab.Navigator screenOptions={({route}) =>({
-                tabBarStyle: {backgroundColor: isDarkMode ? '#232529' :'#fff'},
-                headerStyle: {backgroundColor: isDarkMode ? '#232529' :'#fff'},
+                tabBarStyle: themeStyles.nav,
+                headerStyle: themeStyles.nav,
                 headerTintColor:isDarkMode ? '#fff' : '#000000',
                 tabBarIcon: ({ color, size }) => {
                     let iconName;
