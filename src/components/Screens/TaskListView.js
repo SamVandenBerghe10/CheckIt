@@ -61,7 +61,7 @@ const TaskListView = ({route}) => {
       
     }, [])
 
-    const statusList = ["Nog doen", "Mee bezig", "Nakijken", "Klaar"]
+    const statusList = ["To Do", "In Progress", "Review", "Done"]
 
     const { isDarkMode, toggleTheme } = useContext(ThemeContext);
     const themeStyles = ThemeStyles(isDarkMode)
@@ -151,7 +151,7 @@ const AddTask = ({status, setModalVisible, project, statusList, categories, prio
     const [deadline, setDeadline] = useState('');
     const [selectedStatus, setSelectedStatus] = useState(status);
     const [selectedCategory, setSelectedCategory] = useState("");
-    const [selectedPriority, setSelectedPriority] = useState(priorities[0].id);
+    const [selectedPriority, setSelectedPriority] = useState(priorities.find(priority => priority.standardpriority === true)?.id);
 
     const handleSubmit = () => {
         var temp ={id: -1, title: title, description: description, deadline: deadline, status: selectedStatus, projectid: project.id, categoryid: selectedCategory, priorityid: selectedPriority, childtasks: []}

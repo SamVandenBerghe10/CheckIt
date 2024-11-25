@@ -16,6 +16,8 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { postObject } from "./TaskListView"
 import { ThemeStyles } from "../../themes/themeStyles"
 import { Dimensions } from "react-native"
+import {Picker} from '@react-native-picker/picker';
+import { Platform } from "react-native"
 
 const SettingsView = () => {
       const { isDarkMode, toggleTheme } = useContext(ThemeContext);
@@ -50,9 +52,22 @@ const SettingsView = () => {
                 .catch(error => console.error(error))
       
     }, [])
-    const handleSubmit = (categoryId) => {
-        deleteCategory(categories, setCategories, '/categories/delete/',categoryId)
-    }
+
+    const [priorities, setPriorities] = useState([])
+    const [selectedPriority, setSelectedPriority] = useState(0);
+
+    useEffect(() => {
+        fetch("http://192.168.0.204:8080/priorities")
+                .then(res => res.json())
+                .then(data => {
+                    setPriorities(data)
+                    setSelectedPriority(data.find(priority => priority.standardpriority === true)?.id)
+                    console.log("priorities: " + JSON.stringify(data))
+                })
+                .catch(error => console.error(error))
+      
+    }, [])
+
     return (
       <View style={[styles.container, themeStyles.container]}>
         <ScrollView style={{width:'75%'}}>
@@ -66,13 +81,21 @@ const SettingsView = () => {
                 renderItem={({ item }) =>
                   <View style={[styles.category, themeStyles.task, {borderColor: item.color}]}>
                     <Text style={themeStyles.taskText}>{item.name}</Text>
-                    <TouchableOpacity onLongPress={ () => handleSubmit(item.id)} style={{borderColor: item.color}}>
+                    <TouchableOpacity onLongPress={ () => deleteCategory(categories, setCategories, '/categories/delete/',item.id)} style={{borderColor: item.color}}>
                       <Icon name='delete'size={20} color={isDarkMode ? '#f0f0f0' : '#0a3d62'}/>
                     </TouchableOpacity>
                   </View>}
-              keyExtractor={(item) => item.id} numColumns={columnsNumber} key={columnsNumber}/>): (<Text>No categories yet</Text>)}
+              keyExtractor={(item) => item.id} numColumns={columnsNumber} key={columnsNumber} nestedScrollEnabled/>): (<Text>No categories yet</Text>)}
               {!addCategoryVisible && <Button title="Add category" onPress={() => setAddCategoryVisible(!addCategoryVisible)} color='#1169d4'/>}
               {addCategoryVisible && <View style={[themeStyles.taskColumn, styles.addCategoryContainer]}>
+              <TouchableOpacity onPress={ () =>  {
+                setAddCategoryVisible(false)
+                setAddCategoryName("")
+                setAddCategoryDescription("")
+                setAddCategoryColor("")
+              }} style={{position: 'absolute', right: 5, top: 5}}>
+                <Icon name='delete'size={20} color={isDarkMode ? '#0a3d62' : '#f0f0f0'}/>
+            </TouchableOpacity>
               <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Add a new category</Text>
               <Text style={styles.inputlabel}>Name:</Text>
               <TextInput placeholder="name" onChangeText={(text) => setAddCategoryName(text)} value={addCategoryName} style={styles.addProjectInput}/>
@@ -101,15 +124,13 @@ const SettingsView = () => {
                         setAddCategoryDescription("")
                         setAddCategoryColor("")
                     }}/>
-                    <View style={{margin: 5}}/>
-                    <Button title="cancel" onPress={() => {
-                        setAddCategoryVisible(false)
-                        setAddCategoryName("")
-                        setAddCategoryDescription("")
-                        setAddCategoryColor("")
-                    }}/>
                     </View>}
                     <View style={styles.horizontalLine}/>
+                    <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Standard Priority:</Text>
+                    <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null, {width: 200}]}>
+                      {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id}/>))}
+                    </Picker>
+                    <Button title='update' onPress={() => setStandardPriority(priorities, setPriorities, '/priorities/standard/', selectedPriority)} color='#1169d4'/>
             </View>   
         </ScrollView> 
       </View> 
@@ -130,6 +151,27 @@ const deleteCategory = async (data, setState, urlExtention, id) => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       setState((prevCategories) => prevCategories.filter((category) => category.id != id))
+      console.log('Response: ', response);
+      
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
+  };
+
+  const setStandardPriority = async (data, setState, urlExtention, id) => {
+    try {
+      const response = await fetch('http://192.168.0.204:8080' + urlExtention + id, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      setState((prevCategories) => prevCategories)
       console.log('Response: ', response);
       
     } catch (error) {

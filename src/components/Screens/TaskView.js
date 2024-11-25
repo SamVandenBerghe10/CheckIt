@@ -216,7 +216,7 @@ const EditTask = ({task, status, setModalVisible, project, statusList, categorie
         setDeadline('')
         setSelectedStatus(status)
         setSelectedCategory("")
-        setSelectedPriority(priorities[0].id)
+        setSelectedPriority(priorities.find(priority => priority.standardpriority === true)?.id)
     };
 
     return (
