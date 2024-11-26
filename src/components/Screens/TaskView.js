@@ -33,7 +33,7 @@ const TaskView = ({route}) => {
 
     useFocusEffect(
         useCallback(() => {
-        fetch("http://192.168.0.204:8080/tasks/" + task.id)
+        fetch("http://localhost:8080/tasks/" + task.id)
                 .then(res => res.json())
                 .then(data => {
                     setTask(data)
@@ -65,7 +65,7 @@ const TaskView = ({route}) => {
                     {task.category != null ? 
                         <View>
                             <Text style={[styles.inputlabel, themeStyles.taskText]}>Category:</Text> 
-                            <Text style={[{borderColor: task.category.color}, themeStyles.taskText, styles.taskDetailInfoIndividual]}>{" " + task.category?.name}</Text>
+                            <Text style={[{borderColor: task.category?.color}, themeStyles.taskText, styles.taskDetailInfoIndividual]}>{" " + task.category?.name}</Text>
                         </View>
                         : <Text style={[themeStyles.taskText, styles.taskDetailInfoIndividual]}>No category selected</Text>}
                     <Text style={[styles.inputlabel, themeStyles.taskText]}>Status:</Text>
@@ -178,7 +178,7 @@ const AddTask = ({parenttask, status, setModalVisible, project, statusList, cate
 
 const postObject = async (data, setState, urlExtention) => {
     try {
-      const response = await fetch('http://192.168.0.204:8080' + urlExtention, {
+      const response = await fetch('http://localhost:8080' + urlExtention, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -257,7 +257,7 @@ const EditTask = ({task, status, setModalVisible, project, statusList, categorie
 
 const updateTask = async (data, setState, urlExtention, id) => {
     try {
-      const response = await fetch('http://192.168.0.204:8080' + urlExtention + id, {
+      const response = await fetch('http://localhost:8080' + urlExtention + id, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -280,7 +280,7 @@ const updateTask = async (data, setState, urlExtention, id) => {
   const deleteTask = async (task, navigation) => {
     try {
         console.log("delete task: " + task.id)
-        const response = await fetch('http://192.168.0.204:8080/tasks/delete/' + task.id, {
+        const response = await fetch('http://localhost:8080/tasks/delete/' + task.id, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',

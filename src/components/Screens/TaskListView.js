@@ -25,7 +25,7 @@ const TaskListView = ({route}) => {
     
     useFocusEffect(
         useCallback(() => {
-        fetch("http://192.168.0.204:8080/tasks/project/" + project.id)
+        fetch("http://localhost:8080/tasks/project/" + project.id)
                 .then(res => res.json())
                 .then(data => {
                     setTasks(data)
@@ -38,7 +38,7 @@ const TaskListView = ({route}) => {
 
     useFocusEffect(
         useCallback(() => {
-        fetch("http://192.168.0.204:8080/categories")
+        fetch("http://localhost:8080/categories")
                 .then(res => res.json())
                 .then(data => {
                     var temp = [{id: 99999999, name: ""}, ...data]
@@ -51,7 +51,7 @@ const TaskListView = ({route}) => {
     const [priorities, setPriorities] = useState([])
 
     useEffect(() => {
-        fetch("http://192.168.0.204:8080/priorities/sorted")
+        fetch("http://localhost:8080/priorities/sorted")
                 .then(res => res.json())
                 .then(data => {
                     setPriorities(data)
@@ -65,12 +65,20 @@ const TaskListView = ({route}) => {
 
     const { isDarkMode, toggleTheme } = useContext(ThemeContext);
     const themeStyles = ThemeStyles(isDarkMode)
+
+    const [deleteModal, setDeleteModal] = useState(false)
     return (
         <View style={[styles.container2, themeStyles.container]}>
+            <TouchableOpacity onPress={() => setDeleteModal(true)} style={{position: 'absolute', right: 10, top: 10}}>
+                <Icon name='delete'size={30} color={isDarkMode ? '#f0f0f0' : '#0a3d62'}/>
+            </TouchableOpacity>
             <Text style={[styles.taskHeader ,themeStyles.projectTile, themeStyles.projectTileName]}>{project.name}</Text>
             <ScrollView horizontal>
                 <FlatList data={statusList} renderItem={({item}) => <TaskColumn status={item} tasks={tasks} setTasks={setTasks} statusList={statusList} categories={categories} priorities={priorities} project={project}/>} numColumns={4}/>
             </ScrollView>
+            <Modal visible={deleteModal} animationType="fade" transparent={true} >
+                <DeleteProject setModalVisible={setDeleteModal} project={project} />
+            </Modal>
         </View>
     )
 }
@@ -171,7 +179,7 @@ const AddTask = ({status, setModalVisible, project, statusList, categories, prio
             <TouchableWithoutFeedback>
             <View style={styles.addProjectForm}>
                 <ScrollView>
-                <Text style={styles.addProjectTitle}>Add a new Task in "{status}"</Text>
+                <Text style={styles.addProjectTitle}>Add a new Task in "{status}"</Text>    
                 <Text style={styles.inputlabel}>Project Title:</Text>
                 <TextInput placeholder="title" placeholderTextColor={"gray"} onChangeText={(text) => setTitle(text)} value={title} style={styles.addProjectInput} label/>
                 <Text style={styles.inputlabel}>Task description:</Text>
@@ -203,7 +211,7 @@ const AddTask = ({status, setModalVisible, project, statusList, categories, prio
 
 export const postObject = async (data, setState, urlExtention) => {
     try {
-      const response = await fetch('http://192.168.0.204:8080' + urlExtention, {
+      const response = await fetch('http://localhost:8080' + urlExtention, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -218,6 +226,58 @@ export const postObject = async (data, setState, urlExtention) => {
       const result = await response.json()
       setState((prevTasks) => [...prevTasks, result])
       console.log('Response: ', response);
+      
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
+  };
+
+const DeleteProject = ({setModalVisible, project}) => {
+    const [confirmText, setConfirmText] = useState("")
+    const [confirmError, setConfirmError] = useState("")
+
+    const navigation = useNavigation()
+
+    const HandleProjectDelete = () => {
+        setConfirmError("Project name does not match")
+        if(confirmText == project.name) {
+            deleteProject(navigation, '/projects/delete/', project.id)
+            setConfirmError("")
+            setModalVisible((prevModalVisible) => false)
+        }
+    }
+
+    return (
+        <View style={styles.addProjectTransparant}>
+            <TouchableOpacity onPress={() => setModalVisible((prevModalVisible) => false)} activeOpacity={1}>
+                <TouchableWithoutFeedback>
+                    <View style={styles.addProjectForm}>
+                        <Text style={styles.addProjectTitle}>Are you sure??</Text>
+                        <Text style={styles.inputlabel}>To verify the deletion of: "<Text style={{color: "red"}}>{project.name}</Text>", please type the project name:</Text>
+                        {confirmError.length > 0 && <Text style={{color: 'red'}}>{confirmError}</Text>}
+                        <TextInput placeholder={project.name} placeholderTextColor={"gray"} onChangeText={(text) => setConfirmText(text)} value={confirmText} style={styles.addProjectInput} label/>
+                        <Button title="delete" onPress={HandleProjectDelete} color='red'/>
+                    </View>
+                </TouchableWithoutFeedback>
+        </TouchableOpacity>
+        </View>
+    )
+}
+
+const deleteProject = async (navigation, urlExtention, id) => {
+    try {
+      const response = await fetch('http://localhost:8080' + urlExtention + id, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      console.log('Response: ', response);
+      navigation.goBack()
       
     } catch (error) {
       console.error('Error:', error.message);

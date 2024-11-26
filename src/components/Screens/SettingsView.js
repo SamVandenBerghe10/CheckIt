@@ -43,7 +43,7 @@ const SettingsView = () => {
       const [addCategoryColor, setAddCategoryColor] = useState("")
 
     useEffect(() => {
-        fetch("http://192.168.0.204:8080/categories")
+        fetch("http://localhost:8080/categories")
                 .then(res => res.json())
                 .then(data => {
                     setCategories(data)
@@ -57,7 +57,7 @@ const SettingsView = () => {
     const [selectedPriority, setSelectedPriority] = useState(0);
 
     useEffect(() => {
-        fetch("http://192.168.0.204:8080/priorities")
+        fetch("http://localhost:8080/priorities")
                 .then(res => res.json())
                 .then(data => {
                     setPriorities(data)
@@ -67,6 +67,23 @@ const SettingsView = () => {
                 .catch(error => console.error(error))
       
     }, [])
+
+    const [nameError, setNameError] = useState("");
+    const [colorError, setColorError] = useState("");
+    
+    const validateCategoryPost = (category) => {
+      var returnName = true
+      var returnColor = true
+      if(category.name.length == 0){
+        returnName = false
+        setNameError("name is required")
+      }
+      if(category.color.length == 0){
+        returnColor = false
+        setColorError("color is required")
+      }
+      return (returnName && returnColor)
+    }
 
     return (
       <View style={[styles.container, themeStyles.container]}>
@@ -93,15 +110,19 @@ const SettingsView = () => {
                 setAddCategoryName("")
                 setAddCategoryDescription("")
                 setAddCategoryColor("")
+                setNameError("")
+                setColorError("")
               }} style={{position: 'absolute', right: 5, top: 5}}>
                 <Icon name='delete'size={20} color={isDarkMode ? '#0a3d62' : '#f0f0f0'}/>
             </TouchableOpacity>
               <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Add a new category</Text>
               <Text style={styles.inputlabel}>Name:</Text>
+              {nameError.length > 0 && <Text style={{color: 'red'}}>{nameError}</Text>}
               <TextInput placeholder="name" onChangeText={(text) => setAddCategoryName(text)} value={addCategoryName} style={styles.addProjectInput}/>
               <Text style={styles.inputlabel}>Description:</Text>
               <TextInput placeholder="description" onChangeText={(text) => setAddCategoryDescription(text)} value={addCategoryDescription} style={styles.addProjectInput}/>
               <Text style={[{borderColor: addCategoryColor}, styles.addProjectInput, styles.addCategoryText]}>Color: {addCategoryColor != "" ? addCategoryColor : "Click on a color!"}</Text>
+              {colorError.length > 0 && <Text style={{color: 'red'}}>{colorError}</Text>}
               <ColorPicker
                     color={addCategoryColor}
                     swatchesOnly={true}
@@ -118,11 +139,16 @@ const SettingsView = () => {
                 />
                     <Button title="save" onPress={() => {
                         var temp = {id: -1, name: addCategoryName, description: addCategoryDescription, color: addCategoryColor}
-                        postObject(temp, setCategories, '/categories/add')
-                        setAddCategoryVisible(false)
-                        setAddCategoryName("")
-                        setAddCategoryDescription("")
-                        setAddCategoryColor("")
+                        setNameError("")
+                        setColorError("")
+                        if(validateCategoryPost(temp))
+                        {
+                          postObject(temp, setCategories, '/categories/add')
+                          setAddCategoryVisible(false)
+                          setAddCategoryName("")
+                          setAddCategoryDescription("")
+                          setAddCategoryColor("")
+                        }
                     }}/>
                     </View>}
                     <View style={styles.horizontalLine}/>
@@ -139,7 +165,7 @@ const SettingsView = () => {
 
 const deleteCategory = async (data, setState, urlExtention, id) => {
     try {
-      const response = await fetch('http://192.168.0.204:8080' + urlExtention + id, {
+      const response = await fetch('http://localhost:8080' + urlExtention + id, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -160,7 +186,7 @@ const deleteCategory = async (data, setState, urlExtention, id) => {
 
   const setStandardPriority = async (data, setState, urlExtention, id) => {
     try {
-      const response = await fetch('http://192.168.0.204:8080' + urlExtention + id, {
+      const response = await fetch('http://localhost:8080' + urlExtention + id, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

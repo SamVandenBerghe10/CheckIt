@@ -10,12 +10,14 @@ import { ThemeContext } from "../../../App"
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { postObject } from "./TaskListView"
 import { ThemeStyles } from "../../themes/themeStyles"
+import { useFocusEffect } from "@react-navigation/native"
+import { useCallback } from "react"
 
 const ProjectView = ({navigation}) => {
     
     const [columnsNumber, setColumns] = useState(Math.floor((Dimensions.get('window').width - (Dimensions.get('window').width/300)*30)/300))
 
-    useEffect(() => {
+    useFocusEffect(() => {
         const updateNumColumns = () => {
             setColumns(Math.floor((Dimensions.get('window').width - (Dimensions.get('window').width/300)*30)/300));
         };
@@ -28,8 +30,9 @@ const ProjectView = ({navigation}) => {
  
     const [projects, setProjects] = useState([])
 
-    useEffect(() => {
-        fetch("http://192.168.0.204:8080/projects")
+    useFocusEffect(
+        useCallback(() => {
+        fetch("http://localhost:8080/projects")
                 .then(res => res.json())
                 .then(data => {
                     setProjects(data)
@@ -37,7 +40,7 @@ const ProjectView = ({navigation}) => {
                 })
                 .catch(error => console.error(error))
       
-    }, [])
+    }, []))
 
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -72,13 +75,30 @@ const AddProject = ({setModalVisible, setProjects}) => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
 
+    const [nameError, setNameError] = useState("");
+
     const handleSubmit = () => {
         var temp = {Id: -1, name: name, description: description}
-        postObject(temp, setProjects, '/projects/add')
-        setModalVisible(false)
-        setName("")
-        setDescription("")
+        if(validateProjectPost(name))
+        {
+            postObject(temp, setProjects, '/projects/add')
+            setModalVisible(false)
+            setName("")
+            setDescription("")
+            setNameError("")
+        }
+        else 
+        {
+            setNameError("Please enter a name for the project.")
+        }
     };
+
+    const validateProjectPost = (name) => {
+        if(name.length > 0){
+            return true
+        }
+        return false
+    }
 
     return (
         <View style={styles.addProjectTransparant}>
@@ -87,6 +107,7 @@ const AddProject = ({setModalVisible, setProjects}) => {
             <View style={styles.addProjectForm}>
                 <Text style={styles.addProjectTitle}>Add a new Project!</Text>
                 <Text style={styles.inputlabel}>Project name:</Text>
+                {nameError.length > 0 && <Text style={{color: 'red'}}>{nameError}</Text>}
                 <TextInput placeholder="name" placeholderTextColor={"gray"} onChangeText={(text) => setName(text)} value={name} style={styles.addProjectInput} label/>
                 <Text style={styles.inputlabel}>Project description:</Text>
                 <TextInput placeholder="description" placeholderTextColor={"gray"} onChangeText={(text) => setDescription(text)} value={description} multiline numberOfLines={4} style={styles.addProjectInput}/>

@@ -20,10 +20,10 @@ const HomeScreenView = () => {
             }}>
             <Stack.Group>
                 <Stack.Screen name="Projects" component={ProjectView} options={{headerShown: false}} />
-                <Stack.Screen name="Tasks" component={TaskListView} options={{title: 'Task'}} />
+                <Stack.Screen name="Tasks" component={TaskListView} options={{title: 'Project'}} />
             </Stack.Group>
             <Stack.Group screenOptions={{presentation: 'modal'}}>
-                <Stack.Screen name="TaskDetail" component={TaskView} options={{title: 'TaskDetail'}}/>
+                <Stack.Screen name="TaskDetail" component={TaskView} options={{title: 'Task'}}/>
             </Stack.Group>
             
         </Stack.Navigator>
