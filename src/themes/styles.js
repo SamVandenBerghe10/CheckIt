@@ -224,5 +224,18 @@ export const styles = StyleSheet.create({
         borderRadius: 10, 
         width: 100, 
         padding: 3
+    },
+    button: {
+        borderRadius: 20,
+        padding: 10,
+        paddingHorizontal: 25,
+        backgroundColor: '#1169d4',
+        alignSelf: 'center',
+        margin: 10
+    },
+    buttonText: {
+        color: 'white',
+        fontWeight: 500,
+        fontSize: 15
     }
   });

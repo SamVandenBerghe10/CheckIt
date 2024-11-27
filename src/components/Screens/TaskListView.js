@@ -3,11 +3,9 @@ import { View, Text, ScrollView, FlatList } from "react-native"
 import { useState } from "react"
 import { useEffect } from "react"
 import { styles } from "../../themes/styles"
-import { TouchableOpacity } from "react-native"
 import { Modal } from "react-native"
 import { TouchableWithoutFeedback } from "react-native"
 import { TextInput } from "react-native"
-import { Button } from "react-native"
 import {Picker} from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import { useContext } from "react"
@@ -17,6 +15,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ThemeStyles } from "../../themes/themeStyles"
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
+import { Pressable } from "react-native"
 
 const TaskListView = ({route}) => {
     var {project} = route.params
@@ -51,7 +50,7 @@ const TaskListView = ({route}) => {
     const [priorities, setPriorities] = useState([])
 
     useEffect(() => {
-        fetch("http://localhost:8080/priorities/sorted")
+        fetch("http://localhost:8080/priorities")
                 .then(res => res.json())
                 .then(data => {
                     setPriorities(data)
@@ -69,9 +68,9 @@ const TaskListView = ({route}) => {
     const [deleteModal, setDeleteModal] = useState(false)
     return (
         <View style={[styles.container2, themeStyles.container]}>
-            <TouchableOpacity onPress={() => setDeleteModal(true)} style={{position: 'absolute', right: 10, top: 10}}>
+            <Pressable onPress={() => setDeleteModal(true)} style={{position: 'absolute', right: 10, top: 10}}>
                 <Icon name='delete'size={30} color={isDarkMode ? '#f0f0f0' : '#0a3d62'}/>
-            </TouchableOpacity>
+            </Pressable>
             <Text style={[styles.taskHeader ,themeStyles.projectTile, themeStyles.projectTileName]}>{project.name}</Text>
             <ScrollView horizontal>
                 <FlatList data={statusList} renderItem={({item}) => <TaskColumn status={item} tasks={tasks} setTasks={setTasks} statusList={statusList} categories={categories} priorities={priorities} project={project}/>} numColumns={4}/>
@@ -92,9 +91,9 @@ const TaskColumn = ({status, tasks, setTasks, statusList, categories, priorities
         <View style={[styles.taskColumn, themeStyles.taskColumn]}>
             <Text style={[styles.taskColumnText, themeStyles.projectTileName]}>{status}</Text>
             <FlatList data={tasks.filter(i => i.status == status && i.parenttaskid == null)} renderItem={({item}) => <Task task={item} statusList={statusList} categories={categories} priorities={priorities} project={project}></Task>}/>
-            <TouchableOpacity style={styles.addTask} onPress={() => setModalVisible(true)}>
+            <Pressable style={styles.addTask} onPress={() => setModalVisible(true)}>
                 <Icon name='add-circle' color='#0a3d62' size={20} style={{alignSelf: 'center', margin: 2}}/>
-            </TouchableOpacity>
+            </Pressable>
             <Modal visible={modalVisible} animationType="fade" transparent={true} >
                 <AddTask status={status} setModalVisible={setModalVisible} project={project} statusList={statusList} categories={categories} priorities={priorities} setTasks={setTasks}/>
             </Modal>
@@ -108,10 +107,25 @@ export const Task = ({task, statusList, categories, priorities}) => {
 
     var navigation = useNavigation()
     var temp = task
+
+    var category = task.category?.name
+    if(task.category?.name?.length > 10)
+    {
+        category = task.category?.name?.substring(0, 10) + "..."
+    }
+
+    var title = task.title
+    if(task.title.length > 18)
+    {
+        if(task.category?.name?.length > 10)
+        {
+            title = task.title.substring(0, 17) + "..."
+        }
+    }
     return (
-        <TouchableOpacity style={[styles.task, themeStyles.task, {borderColor: task.category?.color}]} onPress={() => navigation.push('TaskDetail', {temp, statusList, categories, priorities})}>
-            <Text style={themeStyles.taskText}>{task.title + " "}{task.category ? "| " + task.category?.name + " | ": ""}{<PriorityIndicator priority={task.priority} style={{position: 'absolute', right: 1}}/>}{task.childtasks?.length > 0 ? <Icon name='account-tree' size={18} color={themeStyles.taskText} style={{position: 'absolute', right: 1}}/>: null}</Text>
-        </TouchableOpacity>
+        <Pressable style={[styles.task, themeStyles.task, {borderColor: task.category?.color}]} onPress={() => navigation.push('TaskDetail', {temp, statusList, categories, priorities})}>
+            <Text style={themeStyles.taskText}>{title + " | "}{task.category ? category + " | ": ""}{<PriorityIndicator priority={task.priority} style={{position: 'absolute', right: 1}}/>}{task.childtasks?.length > 0 ? <Icon name='account-tree' size={18} color={themeStyles.taskText} style={{position: 'absolute', right: 1}}/>: null}</Text>
+        </Pressable>
     )
 }
 
@@ -156,7 +170,8 @@ export const PriorityIndicator = ({priority}) =>{
 const AddTask = ({status, setModalVisible, project, statusList, categories, priorities, setTasks}) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [deadline, setDeadline] = useState('');
+    var date = new Date()
+    const [deadline, setDeadline] = useState(date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " 12:00:00");
     const [selectedStatus, setSelectedStatus] = useState(status);
     const [selectedCategory, setSelectedCategory] = useState("");
     const [selectedPriority, setSelectedPriority] = useState(priorities.find(priority => priority.standardpriority === true)?.id);
@@ -175,7 +190,7 @@ const AddTask = ({status, setModalVisible, project, statusList, categories, prio
 
     return (
         <View style={styles.addProjectTransparant}>
-            <TouchableOpacity onPress={() => setModalVisible((prevModalVisible) => false)} activeOpacity={1}>
+            <Pressable onPress={() => setModalVisible((prevModalVisible) => false)} style={{flex: 1, justifyContent: 'center'}}>
             <TouchableWithoutFeedback>
             <View style={styles.addProjectForm}>
                 <ScrollView>
@@ -198,13 +213,12 @@ const AddTask = ({status, setModalVisible, project, statusList, categories, prio
                 <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
                     {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id}/>))}
                 </Picker>
-                
-                <Button title="add task" onPress={handleSubmit} color='#1169d4'/>
+                <Pressable onPress={handleSubmit} style={styles.button}><Text style={styles.buttonText}>add task</Text></Pressable>
                 </ScrollView>
                 
             </View>
             </TouchableWithoutFeedback>
-        </TouchableOpacity>
+        </Pressable>
         </View>
     );
 }
@@ -249,17 +263,17 @@ const DeleteProject = ({setModalVisible, project}) => {
 
     return (
         <View style={styles.addProjectTransparant}>
-            <TouchableOpacity onPress={() => setModalVisible((prevModalVisible) => false)} activeOpacity={1}>
+            <Pressable onPress={() => setModalVisible((prevModalVisible) => false)} style={{flex: 1, justifyContent: 'center'}}>
                 <TouchableWithoutFeedback>
                     <View style={styles.addProjectForm}>
                         <Text style={styles.addProjectTitle}>Are you sure??</Text>
                         <Text style={styles.inputlabel}>To verify the deletion of: "<Text style={{color: "red"}}>{project.name}</Text>", please type the project name:</Text>
                         {confirmError.length > 0 && <Text style={{color: 'red'}}>{confirmError}</Text>}
                         <TextInput placeholder={project.name} placeholderTextColor={"gray"} onChangeText={(text) => setConfirmText(text)} value={confirmText} style={styles.addProjectInput} label/>
-                        <Button title="delete" onPress={HandleProjectDelete} color='red'/>
+                        <Pressable onPress={HandleProjectDelete} style={[styles.button, {backgroundColor: "red"}]}><Text style={styles.buttonText}>delete</Text></Pressable>
                     </View>
                 </TouchableWithoutFeedback>
-        </TouchableOpacity>
+        </Pressable>
         </View>
     )
 }

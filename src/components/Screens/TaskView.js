@@ -1,4 +1,4 @@
-import { FlatList, Text } from "react-native";
+import { FlatList, Pressable, Text } from "react-native";
 import { useContext } from "react";
 import { ThemeContext } from "../../../App";
 import { styles } from "../../themes/styles";
@@ -7,14 +7,12 @@ import { Task } from "./TaskListView";
 import { ScrollView } from "react-native";
 import { PriorityIndicator } from "./TaskListView";
 import { useState, useEffect } from "react"
-import { TouchableOpacity } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Modal } from "react-native";
 import { TouchableWithoutFeedback } from "react-native";
 import { TextInput } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Platform } from "react-native";
-import { Button } from "react-native";
 import moment from "moment";
 import { ThemeStyles } from "../../themes/themeStyles";
 import { Dimensions } from "react-native";
@@ -46,22 +44,19 @@ const TaskView = ({route}) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [modalAddVisible, setModalAddVisible] = useState(false);
     const navigation = useNavigation()
-    const handleDelete = (task, navigation) => {
 
-        deleteTask(task, navigation);
-    }
     return (
         <View style={[styles.container, themeStyles.container]}>
             <ScrollView style={[styles.taskDetailContainer, themeStyles.projectTile]}>
-            <TouchableOpacity onLongPress={ () => handleDelete(task, navigation)} style={{position: 'absolute', right: 5, top: 5}}>
+            <Pressable onLongPress={ () => deleteTask(task, navigation)} style={{position: 'absolute', right: 5, top: 5}}>
                 <Icon name='delete'size={20} color={isDarkMode ? '#0a3d62' : '#f0f0f0'}/>
-            </TouchableOpacity>
+            </Pressable>
             <Text style={[styles.addProjectTitle, themeStyles.rProjectTile, themeStyles.rProjectTileName]}>{task.title}</Text>
                 <View style={[styles.taskDetailInfo ,themeStyles.childTaskContainer]}>
                     <Text style={[styles.inputlabel, themeStyles.taskText]}>Description:</Text>
                     <Text style={[themeStyles.taskText, styles.taskDetailInfoIndividual]}>{task.description}</Text>
                     <Text style={[styles.inputlabel, themeStyles.taskText]}>Deadline:</Text>
-                    <Text style={[themeStyles.taskText, styles.taskDetailInfoIndividual]}>{task.deadline}</Text>
+                    <Text style={[themeStyles.taskText, styles.taskDetailInfoIndividual]}>{new Date(task.deadline).toDateString()}</Text>
                     {task.category != null ? 
                         <View>
                             <Text style={[styles.inputlabel, themeStyles.taskText]}>Category:</Text> 
@@ -72,7 +67,7 @@ const TaskView = ({route}) => {
                     <Text style={[themeStyles.taskText, styles.taskDetailInfoIndividual]}>{task.status}</Text>
                     <Text style={[styles.inputlabel, themeStyles.taskText]}>Priority:</Text>
                     <Text style={[themeStyles.taskText, styles.taskDetailInfoIndividual]}>{task.priority.name} <PriorityIndicator priority={task.priority}/></Text>
-                    {task.parenttaskid != null ?<Text style={themeStyles.taskText}>-is a subtask<Icon name='account-tree' size={18} color={themeStyles.taskText}/></Text> : null}
+                    {task.parenttaskid != null ?<Text style={themeStyles.taskText}><Text style={[styles.inputlabel, themeStyles.taskText]}>Subtask:</Text> is a subtask <Icon name='account-tree' size={18} color={themeStyles.taskText}/></Text> : null}
                 </View>
                 {task.childtasks?.length > 0 && (
                 <View style={[styles.childTask, themeStyles.childTaskContainer]}>
@@ -81,12 +76,12 @@ const TaskView = ({route}) => {
                 </View>)}
             </ScrollView>
             
-            <TouchableOpacity onPress={() => setModalAddVisible(true)} style={styles.addProject}>
+            <Pressable onPress={() => setModalAddVisible(true)} style={styles.addProject}>
                 <Icon name='add-circle' color='white' size={20}/>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.updateTask}>
+            </Pressable>
+            <Pressable onPress={() => setModalVisible(true)} style={styles.updateTask}>
                 <Icon name='edit' color='white' size={20}/>
-            </TouchableOpacity>
+            </Pressable>
             <Modal visible={modalVisible} animationType="fade" transparent={true} >
                 <EditTask task={task} status={task.status} setModalVisible={setModalVisible} project={task.project} statusList={statusList} categories={categories} priorities={priorities} setTask={setTask}/>
             </Modal> 
@@ -123,10 +118,11 @@ const SubTask = ({task, statusList, categories, priorities, onGoBack}) => {
 const AddTask = ({parenttask, status, setModalVisible, project, statusList, categories, priorities, setTasks}) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [deadline, setDeadline] = useState('');
+    var date = new Date()
+    const [deadline, setDeadline] = useState(date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " 12:00:00");
     const [selectedStatus, setSelectedStatus] = useState(status);
     const [selectedCategory, setSelectedCategory] = useState("");
-    const [selectedPriority, setSelectedPriority] = useState(priorities[0].id);
+    const [selectedPriority, setSelectedPriority] = useState(priorities.find(priority => priority.standardpriority === true)?.id);
 
     const handleSubmit = () => {
         var temp ={id: -1, title: title, description: description, deadline: deadline, status: selectedStatus, projectid: project.id, categoryid: selectedCategory, priorityid: selectedPriority, childtasks: [], parenttaskid: parenttask.id}
@@ -137,12 +133,12 @@ const AddTask = ({parenttask, status, setModalVisible, project, statusList, cate
         setDeadline('')
         setSelectedStatus(status)
         setSelectedCategory("")
-        setSelectedPriority(priorities[0].id)
+        setSelectedPriority(priorities.find(priority => priority.standardpriority === true)?.id)
     };
 
     return (
         <View style={styles.addProjectTransparant}>
-            <TouchableOpacity onPress={() => setModalVisible((prevModalVisible) => false)} activeOpacity={1}>
+            <Pressable onPress={() => setModalVisible((prevModalVisible) => false)} style={{flex: 1, justifyContent: 'center'}}>
             <TouchableWithoutFeedback>
             <View style={styles.addProjectForm}>
                 <ScrollView>
@@ -165,13 +161,12 @@ const AddTask = ({parenttask, status, setModalVisible, project, statusList, cate
                 <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
                     {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id}/>))}
                 </Picker>
-                
-                <Button title="add subtask" onPress={handleSubmit}/>
+                <Pressable onPress={handleSubmit} style={styles.button}><Text style={styles.buttonText}>add subtask</Text></Pressable>
                 </ScrollView>
                 
             </View>
             </TouchableWithoutFeedback>
-        </TouchableOpacity>
+        </Pressable>
         </View>
     );
 }
@@ -208,7 +203,7 @@ const EditTask = ({task, status, setModalVisible, project, statusList, categorie
     const [selectedPriority, setSelectedPriority] = useState(task.priority.id);
 
     const handleSubmit = () => {
-        var temp ={id: -1, title: title, description: description, deadline: deadline, status: selectedStatus, projectid: project.id, categoryid: selectedCategory, priorityid: selectedPriority, parenttaskid: task.parenttaskid}
+        var temp ={id: -1, title: title, description: description, deadline: deadline, status: selectedStatus, projectid: project.id, categoryid: selectedCategory == 99999999 ? null: selectedCategory, priorityid: selectedPriority, parenttaskid: task.parenttaskid}
         updateTask(temp, setTask, '/tasks/update/', task.id)
         setModalVisible((prevModalVisible) => false)
         setTitle('')
@@ -221,7 +216,7 @@ const EditTask = ({task, status, setModalVisible, project, statusList, categorie
 
     return (
         <View style={styles.addProjectTransparant}>
-            <TouchableOpacity onPress={() => setModalVisible((prevModalVisible) => false)} activeOpacity={1}>
+            <Pressable onPress={() => setModalVisible((prevModalVisible) => false)} activeOpacity={1}>
             <TouchableWithoutFeedback>
             <View style={styles.addProjectForm}>
                 <ScrollView>
@@ -244,13 +239,12 @@ const EditTask = ({task, status, setModalVisible, project, statusList, categorie
                 <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
                     {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id}/>))}
                 </Picker>
-                
-                <Button title="update task" onPress={handleSubmit}/>
+                <Pressable onPress={handleSubmit} style={styles.button}><Text style={styles.buttonText}>update task</Text></Pressable>
                 </ScrollView>
                 
             </View>
             </TouchableWithoutFeedback>
-        </TouchableOpacity>
+        </Pressable>
         </View>
     );
 }

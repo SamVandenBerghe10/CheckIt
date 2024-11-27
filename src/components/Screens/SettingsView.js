@@ -1,8 +1,7 @@
 import React from "react"
-import { View, Text, TouchableOpacity } from "react-native"
+import { View, Text, Pressable } from "react-native"
 import { Switch } from "react-native"
 import { useContext } from "react"
-import { Button } from "react-native"
 import { ThemeContext } from "../../../App"
 import { styles } from "../../themes/styles"
 import { FlatList } from "react-native"
@@ -18,6 +17,7 @@ import { ThemeStyles } from "../../themes/themeStyles"
 import { Dimensions } from "react-native"
 import {Picker} from '@react-native-picker/picker';
 import { Platform } from "react-native"
+import { useNavigation } from "@react-navigation/native"
 
 const SettingsView = () => {
       const { isDarkMode, toggleTheme } = useContext(ThemeContext);
@@ -85,6 +85,30 @@ const SettingsView = () => {
       return (returnName && returnColor)
     }
 
+    const handleCategorySave = () => {
+      var temp = {id: -1, name: addCategoryName, description: addCategoryDescription, color: addCategoryColor}
+      setNameError("")
+      setColorError("")
+      if(validateCategoryPost(temp))
+      {
+        postObject(temp, setCategories, '/categories/add')
+        setAddCategoryVisible(false)
+        setAddCategoryName("")
+        setAddCategoryDescription("")
+        setAddCategoryColor("")
+      }
+    }
+
+    const handleCategorySaveCancel = () => {
+      setAddCategoryVisible(false)
+                setAddCategoryName("")
+                setAddCategoryDescription("")
+                setAddCategoryColor("")
+                setNameError("")
+                setColorError("")
+    }
+    var navigation = useNavigation()
+
     return (
       <View style={[styles.container, themeStyles.container]}>
         <ScrollView style={{width:'75%'}}>
@@ -92,29 +116,35 @@ const SettingsView = () => {
             <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Dark Mode:</Text>
             <Switch value={isDarkMode} onValueChange={toggleTheme} style={{marginLeft: 20}}/>
             <View style={styles.horizontalLine}/>
+                    <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Standard Priority:</Text>
+                    <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null, {width: 200}]}>
+                      {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id}/>))}
+                    </Picker>
+                    <View style={{marginLeft: 20, marginBottom: 10, alignContent: 'flex-start'}}>
+                      <Pressable onPress={() => setStandardPriority(priorities, setPriorities, '/priorities/standard/', selectedPriority, navigation)} style={styles.button}><Text style={styles.buttonText}>update</Text></Pressable>
+                    </View>
+                    <View style={styles.horizontalLine}/>
             <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Categories:</Text>
-              {categories.length > 0 ? (<FlatList
+              {categories.length > 0 ? 
+              (<FlatList
                 data={categories}
                 renderItem={({ item }) =>
                   <View style={[styles.category, themeStyles.task, {borderColor: item.color}]}>
                     <Text style={themeStyles.taskText}>{item.name}</Text>
-                    <TouchableOpacity onLongPress={ () => deleteCategory(categories, setCategories, '/categories/delete/',item.id)} style={{borderColor: item.color}}>
+                    <Pressable onLongPress={ () => deleteCategory(setCategories, '/categories/delete/',item.id)} style={{borderColor: item.color}}>
                       <Icon name='delete'size={20} color={isDarkMode ? '#f0f0f0' : '#0a3d62'}/>
-                    </TouchableOpacity>
+                    </Pressable>
                   </View>}
-              keyExtractor={(item) => item.id} numColumns={columnsNumber} key={columnsNumber} nestedScrollEnabled/>): (<Text>No categories yet</Text>)}
-              {!addCategoryVisible && <Button title="Add category" onPress={() => setAddCategoryVisible(!addCategoryVisible)} color='#1169d4'/>}
+              keyExtractor={(item) => item.id} numColumns={columnsNumber} key={columnsNumber} nestedScrollEnabled/>): 
+              (<Text>No categories yet</Text>)}
+              {!addCategoryVisible && 
+              <View style={{marginLeft: 20}}>
+                  <Pressable onPress={() => setAddCategoryVisible(!addCategoryVisible)} style={styles.button}><Text style={styles.buttonText}>Add category</Text></Pressable>
+              </View>}
               {addCategoryVisible && <View style={[themeStyles.taskColumn, styles.addCategoryContainer]}>
-              <TouchableOpacity onPress={ () =>  {
-                setAddCategoryVisible(false)
-                setAddCategoryName("")
-                setAddCategoryDescription("")
-                setAddCategoryColor("")
-                setNameError("")
-                setColorError("")
-              }} style={{position: 'absolute', right: 5, top: 5}}>
+              <Pressable onPress={() =>  handleCategorySaveCancel} style={{position: 'absolute', right: 5, top: 5}}>
                 <Icon name='delete'size={20} color={isDarkMode ? '#0a3d62' : '#f0f0f0'}/>
-            </TouchableOpacity>
+              </Pressable>
               <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Add a new category</Text>
               <Text style={styles.inputlabel}>Name:</Text>
               {nameError.length > 0 && <Text style={{color: 'red'}}>{nameError}</Text>}
@@ -137,40 +167,21 @@ const SettingsView = () => {
                     useNativeLayout={false}
                     style={{margin: 20}}
                 />
-                    <Button title="save" onPress={() => {
-                        var temp = {id: -1, name: addCategoryName, description: addCategoryDescription, color: addCategoryColor}
-                        setNameError("")
-                        setColorError("")
-                        if(validateCategoryPost(temp))
-                        {
-                          postObject(temp, setCategories, '/categories/add')
-                          setAddCategoryVisible(false)
-                          setAddCategoryName("")
-                          setAddCategoryDescription("")
-                          setAddCategoryColor("")
-                        }
-                    }}/>
-                    </View>}
-                    <View style={styles.horizontalLine}/>
-                    <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Standard Priority:</Text>
-                    <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null, {width: 200}]}>
-                      {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id}/>))}
-                    </Picker>
-                    <Button title='update' onPress={() => setStandardPriority(priorities, setPriorities, '/priorities/standard/', selectedPriority)} color='#1169d4'/>
+              <Pressable onPress={handleCategorySave} style={styles.button}><Text style={styles.buttonText}>save</Text></Pressable>
+            </View>}
             </View>   
         </ScrollView> 
       </View> 
     )
 }
 
-const deleteCategory = async (data, setState, urlExtention, id) => {
+const deleteCategory = async (setState, urlExtention, id) => {
     try {
       const response = await fetch('http://localhost:8080' + urlExtention + id, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
       });
   
       if (!response.ok) {
@@ -184,7 +195,7 @@ const deleteCategory = async (data, setState, urlExtention, id) => {
     }
   };
 
-  const setStandardPriority = async (data, setState, urlExtention, id) => {
+  const setStandardPriority = async (data, setState, urlExtention, id, navigation) => {
     try {
       const response = await fetch('http://localhost:8080' + urlExtention + id, {
         method: 'POST',
@@ -197,8 +208,9 @@ const deleteCategory = async (data, setState, urlExtention, id) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      setState((prevCategories) => prevCategories)
+      setState((prev) => prev)
       console.log('Response: ', response);
+      navigation.navigate("Home", {screen :"Projects"})
       
     } catch (error) {
       console.error('Error:', error.message);
