@@ -19,6 +19,7 @@ import { Dimensions } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
+import { AddTask } from "./TaskListView";
 
 const TaskView = ({route}) => {
     
@@ -44,6 +45,7 @@ const TaskView = ({route}) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [modalAddVisible, setModalAddVisible] = useState(false);
     const navigation = useNavigation()
+    const updateTaskLambda = (setTasks, data) => {setTasks((task) => ({...task, childtasks: [...task.childtasks || [], data]}))}
 
     return (
         <View style={[styles.container, themeStyles.container]}>
@@ -86,7 +88,7 @@ const TaskView = ({route}) => {
                 <EditTask task={task} status={task.status} setModalVisible={setModalVisible} project={task.project} statusList={statusList} categories={categories} priorities={priorities} setTask={setTask}/>
             </Modal> 
             <Modal visible={modalAddVisible} animationType="fade" transparent={true} >
-                <AddTask parenttask={task} status={task.status} setModalVisible={setModalAddVisible} project={task.project} statusList={statusList} categories={categories} priorities={priorities} setTasks={setTask}/>
+                <AddTask parenttask={task} status={task.status} setModalVisible={setModalAddVisible} project={task.project} statusList={statusList} categories={categories} priorities={priorities} setTasks={setTask} titleText={'Add new Subtask to "' + task.title + '"'} updateTaskLambda={updateTaskLambda}/>
             </Modal> 
         </View>
         
@@ -114,85 +116,6 @@ const SubTask = ({task, statusList, categories, priorities, onGoBack}) => {
         )} numColumns={columnsNumber} key={columnsNumber}/>
     )
 }
-
-const AddTask = ({parenttask, status, setModalVisible, project, statusList, categories, priorities, setTasks}) => {
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    var date = new Date()
-    const [deadline, setDeadline] = useState(date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " 12:00:00");
-    const [selectedStatus, setSelectedStatus] = useState(status);
-    const [selectedCategory, setSelectedCategory] = useState("");
-    const [selectedPriority, setSelectedPriority] = useState(priorities.find(priority => priority.standardpriority === true)?.id);
-
-    const handleSubmit = () => {
-        var temp ={id: -1, title: title, description: description, deadline: deadline, status: selectedStatus, projectid: project.id, categoryid: selectedCategory, priorityid: selectedPriority, childtasks: [], parenttaskid: parenttask.id}
-        postObject(temp, setTasks, '/tasks/add')
-        setModalVisible((prevModalVisible) => false)
-        setTitle('')
-        setDescription('')
-        setDeadline('')
-        setSelectedStatus(status)
-        setSelectedCategory("")
-        setSelectedPriority(priorities.find(priority => priority.standardpriority === true)?.id)
-    };
-
-    return (
-        <View style={styles.addProjectTransparant}>
-            <Pressable onPress={() => setModalVisible((prevModalVisible) => false)} style={{flex: 1, justifyContent: 'center'}}>
-            <TouchableWithoutFeedback>
-            <View style={styles.addProjectForm}>
-                <ScrollView>
-                <Text style={styles.addProjectTitle}>Add new SubTask to "{parenttask.title}"</Text>
-                <Text style={styles.inputlabel}>Project Title:</Text>
-                <TextInput placeholder="title" placeholderTextColor={"gray"} onChangeText={(text) => setTitle(text)} value={title} style={styles.addProjectInput} label/>
-                <Text style={styles.inputlabel}>Task description:</Text>
-                <TextInput placeholder="description" placeholderTextColor={"gray"} onChangeText={(text) => setDescription(text)} value={description} multiline numberOfLines={4} style={styles.addProjectInput}/>
-                <Text style={styles.inputlabel}>Deadline (yyyy-MM-dd HH:mm:ss):</Text>
-                <TextInput placeholder="deadline" placeholderTextColor={"gray"} onChangeText={(text) => setDeadline(text)} value={deadline} style={styles.addProjectInput} label/>
-                <Text style={styles.inputlabel}>Status</Text>
-                <Picker selectedValue={selectedStatus} onValueChange={(itemValue, itemIndex) => setSelectedStatus(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
-                    {statusList.map((statusItem) => (<Picker.Item label={statusItem} value={statusItem} key={statusItem}/>))}
-                </Picker>
-                <Text style={styles.inputlabel}>Category</Text>
-                <Picker selectedValue={selectedCategory} onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
-                    {categories.map((category) => (<Picker.Item label={category.name} value={category.id} key={category.id}/>))}
-                </Picker>
-                <Text style={styles.inputlabel}>Priority</Text>
-                <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
-                    {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id}/>))}
-                </Picker>
-                <Pressable onPress={handleSubmit} style={styles.button}><Text style={styles.buttonText}>add subtask</Text></Pressable>
-                </ScrollView>
-                
-            </View>
-            </TouchableWithoutFeedback>
-        </Pressable>
-        </View>
-    );
-}
-
-const postObject = async (data, setState, urlExtention) => {
-    try {
-      const response = await fetch('http://localhost:8080' + urlExtention, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json()
-      setState((task) => ({...task, childtasks: [...task.childtasks || [], result]}))
-      console.log('Response: ', response);
-      
-    } catch (error) {
-      console.error('Error:', error.message);
-    }
-  };
 
 const EditTask = ({task, status, setModalVisible, project, statusList, categories, priorities, setTask}) => {
     const [title, setTitle] = useState(task.title);

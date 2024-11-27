@@ -87,6 +87,8 @@ const TaskColumn = ({status, tasks, setTasks, statusList, categories, priorities
 
     const { isDarkMode, toggleTheme } = useContext(ThemeContext);
     const themeStyles = ThemeStyles(isDarkMode)
+
+    const updateTaskLambda = (setTasks, data) => {setTasks((prevState) => [...prevState, data]);}
     return (
         <View style={[styles.taskColumn, themeStyles.taskColumn]}>
             <Text style={[styles.taskColumnText, themeStyles.projectTileName]}>{status}</Text>
@@ -95,7 +97,7 @@ const TaskColumn = ({status, tasks, setTasks, statusList, categories, priorities
                 <Icon name='add-circle' color='#0a3d62' size={20} style={{alignSelf: 'center', margin: 2}}/>
             </Pressable>
             <Modal visible={modalVisible} animationType="fade" transparent={true} >
-                <AddTask status={status} setModalVisible={setModalVisible} project={project} statusList={statusList} categories={categories} priorities={priorities} setTasks={setTasks}/>
+                <AddTask parenttask={null} status={status} setModalVisible={setModalVisible} project={project} statusList={statusList} categories={categories} priorities={priorities} setTasks={setTasks} titleText={'Add new Task in "' + status + '"'} updateTaskLambda={updateTaskLambda}/>
             </Modal>
         </View>
     )
@@ -130,9 +132,6 @@ export const Task = ({task, statusList, categories, priorities}) => {
 }
 
 export const PriorityIndicator = ({priority}) =>{
-    const { isDarkMode, toggleTheme } = useContext(ThemeContext);
-    const themeStyles = ThemeStyles(isDarkMode)
-
     var showPriority = ""
     var color = ""
     var bgColor = false
@@ -167,7 +166,7 @@ export const PriorityIndicator = ({priority}) =>{
     )
 }
 
-const AddTask = ({status, setModalVisible, project, statusList, categories, priorities, setTasks}) => {
+export const AddTask = ({parenttask, status, setModalVisible, project, statusList, categories, priorities, setTasks, titleText, updateTaskLambda}) => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     var date = new Date()
@@ -177,15 +176,15 @@ const AddTask = ({status, setModalVisible, project, statusList, categories, prio
     const [selectedPriority, setSelectedPriority] = useState(priorities.find(priority => priority.standardpriority === true)?.id);
 
     const handleSubmit = () => {
-        var temp ={id: -1, title: title, description: description, deadline: deadline, status: selectedStatus, projectid: project.id, categoryid: selectedCategory, priorityid: selectedPriority, childtasks: []}
-        postObject(temp, setTasks, '/tasks/add')
+        var temp ={id: -1, title: title, description: description, deadline: deadline, status: selectedStatus, projectid: project.id, categoryid: selectedCategory, priorityid: selectedPriority, childtasks: [], parenttaskid: parenttask?.id}
+        postObject(temp, setTasks, '/tasks/add', updateTaskLambda)
         setModalVisible((prevModalVisible) => false)
         setTitle('')
         setDescription('')
         setDeadline('')
         setSelectedStatus(status)
         setSelectedCategory("")
-        setSelectedPriority(priorities[0].id)
+        setSelectedPriority(priorities.find(priority => priority.standardpriority === true)?.id)
     };
 
     return (
@@ -194,7 +193,7 @@ const AddTask = ({status, setModalVisible, project, statusList, categories, prio
             <TouchableWithoutFeedback>
             <View style={styles.addProjectForm}>
                 <ScrollView>
-                <Text style={styles.addProjectTitle}>Add a new Task in "{status}"</Text>    
+                <Text style={styles.addProjectTitle}>{titleText}</Text>
                 <Text style={styles.inputlabel}>Project Title:</Text>
                 <TextInput placeholder="title" placeholderTextColor={"gray"} onChangeText={(text) => setTitle(text)} value={title} style={styles.addProjectInput} label/>
                 <Text style={styles.inputlabel}>Task description:</Text>
@@ -223,7 +222,7 @@ const AddTask = ({status, setModalVisible, project, statusList, categories, prio
     );
 }
 
-export const postObject = async (data, setState, urlExtention) => {
+export const postObject = async (data, setState, urlExtention, updateTaskLambda) => {
     try {
       const response = await fetch('http://localhost:8080' + urlExtention, {
         method: 'POST',
@@ -238,7 +237,7 @@ export const postObject = async (data, setState, urlExtention) => {
       }
 
       const result = await response.json()
-      setState((prevTasks) => [...prevTasks, result])
+      updateTaskLambda(setState, result)
       console.log('Response: ', response);
       
     } catch (error) {

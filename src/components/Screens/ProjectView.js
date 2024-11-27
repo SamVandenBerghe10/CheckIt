@@ -77,11 +77,13 @@ const AddProject = ({setModalVisible, setProjects}) => {
 
     const [nameError, setNameError] = useState("");
 
+    const updateProjectLambda = (setProjects, data) => {setProjects((prevState) => [...prevState, data]);}
+
     const handleSubmit = () => {
         var temp = {Id: -1, name: name, description: description}
         if(validateProjectPost(name))
         {
-            postObject(temp, setProjects, '/projects/add')
+            postObject(temp, setProjects, '/projects/add', updateProjectLambda)
             setModalVisible(false)
             setName("")
             setDescription("")
