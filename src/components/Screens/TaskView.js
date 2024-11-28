@@ -47,6 +47,19 @@ const TaskView = ({route}) => {
     const navigation = useNavigation()
     const updateTaskLambda = () => {getTask(setTask, task)}
 
+    var color = isDarkMode ? '#f0f0f0' : '#0a3d62'
+    var dateObject = new Date(Date.parse(task.deadline))
+    var now = new Date()
+    if((dateObject - now) / (1000 * 60 * 60 * 24) < 1)
+    {
+        
+        color = "#f2c213"
+    }
+    if(dateObject - now < 0)
+    {
+        color = "red"
+    }
+
     return (
         <View style={[styles.container, themeStyles.container]}>
             <ScrollView style={[styles.taskDetailContainer, themeStyles.projectTile]}>
@@ -56,12 +69,12 @@ const TaskView = ({route}) => {
             <Text style={[styles.addProjectTitle, themeStyles.rProjectTile, themeStyles.rProjectTileName]}>{task.title}</Text>
                 <View style={[styles.taskDetailInfo ,themeStyles.childTaskContainer]}>
                     <Text style={[styles.inputlabel, themeStyles.taskText]}>Description:</Text>
-                    <Text style={[themeStyles.taskText, styles.taskDetailInfoIndividual]}>{task.description}</Text>
+                    {task.description?.length > 0 ? <Text style={[themeStyles.taskText, styles.taskDetailInfoIndividual]}>{task.description}</Text> : <Text style={[themeStyles.taskText, styles.taskDetailInfoIndividual]}>No description</Text>}
                     <Text style={[styles.inputlabel, themeStyles.taskText]}>Deadline:</Text>
-                    <Text style={[themeStyles.taskText, styles.taskDetailInfoIndividual]}>{new Date(task.deadline).toDateString()}</Text>
+                    <Text style={[styles.taskDetailInfoIndividual, {color: color}]}>{new Date(task.deadline).toDateString()}</Text>
+                    <Text style={[styles.inputlabel, themeStyles.taskText]}>Category:</Text> 
                     {task.category != null ? 
                         <View>
-                            <Text style={[styles.inputlabel, themeStyles.taskText]}>Category:</Text> 
                             <Text style={[{borderColor: task.category?.color}, themeStyles.taskText, styles.taskDetailInfoIndividual]}>{" " + task.category?.name}</Text>
                         </View>
                         : <Text style={[themeStyles.taskText, styles.taskDetailInfoIndividual]}>No category selected</Text>}

@@ -128,9 +128,22 @@ export const Task = ({task, statusList, categories, priorities}) => {
             title = task.title.substring(0, 17) + "..."
         }
     }
+
+    var color = isDarkMode ? '#f0f0f0' : '#0a3d62'
+    var dateObject = new Date(Date.parse(task.deadline))
+    var now = new Date()
+    if((dateObject - now) / (1000 * 60 * 60 * 24) < 1)
+    {
+        
+        color = "#f2c213"
+    }
+    if(dateObject - now < 0)
+    {
+        color = "red"
+    }
     return (
         <Pressable style={[styles.task, themeStyles.task, {borderColor: task.category?.color}]} onPress={() => navigation.push('TaskDetail', {temp, statusList, categories, priorities})}>
-            <Text style={themeStyles.taskText}>{title + " | "}{task.category ? category + " | ": ""}{<PriorityIndicator priority={task.priority} style={{position: 'absolute', right: 1}}/>}{task.childtasks?.length > 0 ? <Icon name='account-tree' size={18} color={themeStyles.taskText} style={{position: 'absolute', right: 1}}/>: null}</Text>
+            <Text style={themeStyles.taskText}><Text style={{color: color}}>{title}</Text>{task.category ? " | " + category + " | ": " | "}{<PriorityIndicator priority={task.priority} style={{position: 'absolute', right: 1}}/>}{task.childtasks?.length > 0 ? <Icon name='account-tree' size={18} color={themeStyles.taskText} style={{position: 'absolute', right: 1}}/>: null}</Text>
         </Pressable>
     )
 }
@@ -174,7 +187,7 @@ export const AddTask = ({parenttask, status, setModalVisible, project, statusLis
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     var date = new Date()
-    const [deadline, setDeadline] = useState(date.getFullYear() + "-" + date.getMonth() + "-" + date.getDate() + " 12:00:00");
+    const [deadline, setDeadline] = useState(date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate() + " 12:00:00");
     const [selectedStatus, setSelectedStatus] = useState(status);
     const [selectedCategory, setSelectedCategory] = useState("");
     const [selectedPriority, setSelectedPriority] = useState(priorities.find(priority => priority.standardpriority === true)?.id);
