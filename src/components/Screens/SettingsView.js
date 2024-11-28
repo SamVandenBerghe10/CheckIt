@@ -42,15 +42,9 @@ const SettingsView = () => {
       const [addCategoryDescription, setAddCategoryDescription] = useState("")
       const [addCategoryColor, setAddCategoryColor] = useState("")
 
-    useEffect(() => {
-        fetch("http://localhost:8080/categories")
-                .then(res => res.json())
-                .then(data => {
-                    setCategories(data)
-                    console.log("categories: " + JSON.stringify(data))
-                })
-                .catch(error => console.error(error))
       
+    useEffect(() => {
+      getCategories(setCategories)
     }, [])
 
     const [priorities, setPriorities] = useState([])
@@ -91,7 +85,8 @@ const SettingsView = () => {
       setColorError("")
       if(validateCategoryPost(temp))
       {
-        postObject(temp, setCategories, '/categories/add')
+        var updateTaskLambda = () => {getCategories(setCategories)}
+        postObject(temp, setCategories, '/categories/add', updateTaskLambda)
         setAddCategoryVisible(false)
         setAddCategoryName("")
         setAddCategoryDescription("")
@@ -142,7 +137,7 @@ const SettingsView = () => {
                   <Pressable onPress={() => setAddCategoryVisible(!addCategoryVisible)} style={styles.button}><Text style={styles.buttonText}>Add category</Text></Pressable>
               </View>}
               {addCategoryVisible && <View style={[themeStyles.taskColumn, styles.addCategoryContainer]}>
-              <Pressable onPress={() =>  handleCategorySaveCancel} style={{position: 'absolute', right: 5, top: 5}}>
+              <Pressable onPress={() =>  handleCategorySaveCancel()} style={{position: 'absolute', right: 5, top: 5}}>
                 <Icon name='delete'size={20} color={isDarkMode ? '#0a3d62' : '#f0f0f0'}/>
               </Pressable>
               <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Add a new category</Text>
@@ -167,12 +162,22 @@ const SettingsView = () => {
                     useNativeLayout={false}
                     style={{margin: 20}}
                 />
-              <Pressable onPress={handleCategorySave} style={styles.button}><Text style={styles.buttonText}>save</Text></Pressable>
+              <Pressable onPress={handleCategorySave} style={[styles.button, themeStyles.task]}><Text style={[styles.buttonText, themeStyles.taskText]}>save</Text></Pressable>
             </View>}
             </View>   
         </ScrollView> 
       </View> 
     )
+}
+
+const getCategories = async (setCategories) => {
+  fetch("http://localhost:8080/categories")
+    .then(res => res.json())
+    .then(data => {
+      setCategories((prev) => data)
+      console.log("categories: " + JSON.stringify(data))
+    })
+    .catch(error => console.error(error))
 }
 
 const deleteCategory = async (setState, urlExtention, id) => {
@@ -195,10 +200,10 @@ const deleteCategory = async (setState, urlExtention, id) => {
     }
   };
 
-  const setStandardPriority = async (data, setState, urlExtention, id, navigation) => {
+  const setStandardPriority = async (data, setState, urlExtention, id, navigation, updatePriorityLambda) => {
     try {
       const response = await fetch('http://localhost:8080' + urlExtention + id, {
-        method: 'POST',
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -208,7 +213,6 @@ const deleteCategory = async (setState, urlExtention, id) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      setState((prev) => prev)
       console.log('Response: ', response);
       navigation.navigate("Home", {screen :"Projects"})
       

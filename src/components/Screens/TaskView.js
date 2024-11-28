@@ -45,7 +45,7 @@ const TaskView = ({route}) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [modalAddVisible, setModalAddVisible] = useState(false);
     const navigation = useNavigation()
-    const updateTaskLambda = (setTasks, data) => {setTasks((task) => ({...task, childtasks: [...task.childtasks || [], data]}))}
+    const updateTaskLambda = () => {getTask(setTask, task)}
 
     return (
         <View style={[styles.container, themeStyles.container]}>
@@ -95,6 +95,17 @@ const TaskView = ({route}) => {
         
     )
 }
+
+const getTask = (setTask, task) => {
+    fetch("http://localhost:8080/tasks/" + task.id)
+                .then(res => res.json())
+                .then(data => {
+                    setTask(data)
+                    console.log("task: " + JSON.stringify(data))
+                })
+                .catch(error => console.error(error))
+}
+
 //{item.childtasks?.length > 0 ? (<SubTask task={item} />) : null}
 const SubTask = ({task, statusList, categories, priorities, onGoBack}) => {
     const [columnsNumber, setColumns] = useState(Math.floor((Dimensions.get('window').width - (Dimensions.get('window').width/300)*30)/300))

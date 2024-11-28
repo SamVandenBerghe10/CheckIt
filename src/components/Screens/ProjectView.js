@@ -32,14 +32,7 @@ const ProjectView = ({navigation}) => {
 
     useFocusEffect(
         useCallback(() => {
-        fetch("http://localhost:8080/projects")
-                .then(res => res.json())
-                .then(data => {
-                    setProjects(data)
-                    console.log("projecten: " + JSON.stringify(data))
-                })
-                .catch(error => console.error(error))
-      
+            getProjects(setProjects)
     }, []))
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -60,6 +53,16 @@ const ProjectView = ({navigation}) => {
     )
 }
 
+const getProjects = (setProjects) => {
+    fetch("http://localhost:8080/projects")
+                .then(res => res.json())
+                .then(data => {
+                    setProjects((prev) => data)
+                    console.log("projecten: " + JSON.stringify(data))
+                })
+                .catch(error => console.error(error))
+}
+
 const Project = ({navigation, project}) => {
     const { isDarkMode, toggleTheme } = useContext(ThemeContext);
     const themeStyles = ThemeStyles(isDarkMode)
@@ -77,7 +80,7 @@ const AddProject = ({setModalVisible, setProjects}) => {
 
     const [nameError, setNameError] = useState("");
 
-    const updateProjectLambda = (setProjects, data) => {setProjects((prevState) => [...prevState, data]);}
+    const updateProjectLambda = () => {getProjects(setProjects)}
 
     const handleSubmit = () => {
         var temp = {Id: -1, name: name, description: description}

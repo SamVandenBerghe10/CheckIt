@@ -24,14 +24,8 @@ const TaskListView = ({route}) => {
     
     useFocusEffect(
         useCallback(() => {
-        fetch("http://localhost:8080/tasks/project/" + project.id)
-                .then(res => res.json())
-                .then(data => {
-                    setTasks(data)
-                    console.log("tasks: " + JSON.stringify(data))
-                })
-                .catch(error => console.error(error))
-    }, []))
+            getTasks(setTasks, project)
+        }, []))
 
     const [categories, setCategories] = useState([])
 
@@ -82,13 +76,23 @@ const TaskListView = ({route}) => {
     )
 }
 
+const getTasks = (setTasks, project) => {
+    fetch("http://localhost:8080/tasks/project/" + project.id)
+                .then(res => res.json())
+                .then(data => {
+                    setTasks((prev) => data)
+                    console.log("tasks: " + JSON.stringify(data))
+                })
+                .catch(error => console.error(error))
+}
+
 const TaskColumn = ({status, tasks, setTasks, statusList, categories, priorities, project}) => {
     const [modalVisible, setModalVisible] = useState(false);
 
     const { isDarkMode, toggleTheme } = useContext(ThemeContext);
     const themeStyles = ThemeStyles(isDarkMode)
 
-    const updateTaskLambda = (setTasks, data) => {setTasks((prevState) => [...prevState, data]);}
+    const updateTaskLambda = () => {getTasks(setTasks, project)}
     return (
         <View style={[styles.taskColumn, themeStyles.taskColumn]}>
             <Text style={[styles.taskColumnText, themeStyles.projectTileName]}>{status}</Text>
@@ -235,9 +239,7 @@ export const postObject = async (data, setState, urlExtention, updateTaskLambda)
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
-      const result = await response.json()
-      updateTaskLambda(setState, result)
+      updateTaskLambda()
       console.log('Response: ', response);
       
     } catch (error) {
