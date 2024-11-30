@@ -187,22 +187,51 @@ export const AddTask = ({parenttask, status, setModalVisible, project, statusLis
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     var date = new Date()
-    const [deadline, setDeadline] = useState(date.getFullYear() + "-" + (date.getMonth()+1) + "-" + date.getDate() + " 12:00:00");
+    date.setDate(date.getDate() +1)
+    const [deadline, setDeadline] = useState(date.getFullYear() + "-" + (date.getMonth()+1).toString().padStart(2, '0') + "-" + date.getDate().toString().padStart(2, '0') + " 12:00:00");
     const [selectedStatus, setSelectedStatus] = useState(status);
     const [selectedCategory, setSelectedCategory] = useState("");
     const [selectedPriority, setSelectedPriority] = useState(priorities.find(priority => priority.standardpriority === true)?.id);
 
+    const [titleError, setTitleError] = useState("");
+    const [deadlineError, setDeadlineError] = useState("");
+
     const handleSubmit = () => {
         var temp ={id: -1, title: title, description: description, deadline: deadline, status: selectedStatus, projectid: project.id, categoryid: selectedCategory, priorityid: selectedPriority, childtasks: [], parenttaskid: parenttask?.id}
-        postObject(temp, setTasks, '/tasks/add', updateTaskLambda)
-        setModalVisible((prevModalVisible) => false)
-        setTitle('')
-        setDescription('')
-        setDeadline('')
-        setSelectedStatus(status)
-        setSelectedCategory("")
-        setSelectedPriority(priorities.find(priority => priority.standardpriority === true)?.id)
+        setTitleError("")
+        setDeadlineError("")
+        if(validateTaskPost(temp)) {
+            postObject(temp, setTasks, '/tasks/add', updateTaskLambda)
+            setModalVisible((prevModalVisible) => false)
+            setTitle('')
+            setDescription('')
+            setDeadline('')
+            setSelectedStatus(status)
+            setSelectedCategory("")
+            setSelectedPriority(priorities.find(priority => priority.standardpriority === true)?.id)
+        }
+        
     };
+    
+    const validateTaskPost = (task) => {
+        var returnTitle = true
+        var returnDeadline = true
+        const date = new Date(task.deadline)
+        const regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+        if(task.title.length == 0){
+            returnTitle = false
+          setTitleError("title is required")
+        }
+        if(isNaN(date.getTime()) || !regex.test(task.deadline)){
+            returnDeadline = false
+            setDeadlineError("deadline must be (yyyy-MM-dd HH:mm:ss)")
+        }
+        if(task.deadline.length == 0){
+            returnDeadline = false
+          setDeadlineError("deadline is required")
+        }
+        return (returnTitle && returnDeadline)
+      }
 
     return (
         <View style={styles.addProjectTransparant}>
@@ -212,10 +241,12 @@ export const AddTask = ({parenttask, status, setModalVisible, project, statusLis
                 <ScrollView>
                 <Text style={styles.addProjectTitle}>{titleText}</Text>
                 <Text style={styles.inputlabel}>Project Title:</Text>
+                {titleError.length > 0 && <Text style={{color: 'red'}}>{titleError}</Text>}
                 <TextInput placeholder="title" placeholderTextColor={"gray"} onChangeText={(text) => setTitle(text)} value={title} style={styles.addProjectInput} label/>
                 <Text style={styles.inputlabel}>Task description:</Text>
                 <TextInput placeholder="description" placeholderTextColor={"gray"} onChangeText={(text) => setDescription(text)} value={description} multiline numberOfLines={4} style={styles.addProjectInput}/>
                 <Text style={styles.inputlabel}>Deadline (yyyy-MM-dd HH:mm:ss):</Text>
+                {deadlineError.length > 0 && <Text style={{color: 'red'}}>{deadlineError}</Text>}
                 <TextInput placeholder=" yyyy-MM-dd HH:mm:ss" placeholderTextColor={"gray"} onChangeText={(text) => setDeadline(text)} value={deadline} style={styles.addProjectInput} label/>
                 <Text style={styles.inputlabel}>Status</Text>
                 <Picker selectedValue={selectedStatus} onValueChange={(itemValue, itemIndex) => setSelectedStatus(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
