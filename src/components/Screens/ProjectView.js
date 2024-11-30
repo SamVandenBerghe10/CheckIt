@@ -13,6 +13,8 @@ import { useFocusEffect } from "@react-navigation/native"
 import { useCallback } from "react"
 import { Pressable } from "react-native"
 
+export const ip = "192.168.0.204"
+
 const ProjectView = ({navigation}) => {
     
     const [columnsNumber, setColumns] = useState(Math.floor((Dimensions.get('window').width - (Dimensions.get('window').width/300)*30)/300))
@@ -54,7 +56,7 @@ const ProjectView = ({navigation}) => {
 }
 
 const getProjects = (setProjects) => {
-    fetch("http://localhost:8080/projects")
+    fetch("http://" + ip + ":8080/projects")
                 .then(res => res.json())
                 .then(data => {
                     setProjects((prev) => data)

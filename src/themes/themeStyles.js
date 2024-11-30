@@ -41,4 +41,7 @@ export const ThemeStyles = (isDarkMode) => StyleSheet.create({
     rProjectTileName: {
       color: isDarkMode ? '#f0f0f0' :'#0a3d62', 
     },
+    settingspicker: {
+      backgroundColor: isDarkMode? '#f0f0f0' : '',
+    }
   });

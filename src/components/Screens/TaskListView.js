@@ -16,6 +16,7 @@ import { ThemeStyles } from "../../themes/themeStyles"
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 import { Pressable } from "react-native"
+import { ip } from "./ProjectView"
 
 const TaskListView = ({route}) => {
     var {project} = route.params
@@ -31,7 +32,7 @@ const TaskListView = ({route}) => {
 
     useFocusEffect(
         useCallback(() => {
-        fetch("http://localhost:8080/categories")
+        fetch("http://" + ip + ":8080/categories")
                 .then(res => res.json())
                 .then(data => {
                     var temp = [{id: 99999999, name: ""}, ...data]
@@ -44,7 +45,7 @@ const TaskListView = ({route}) => {
     const [priorities, setPriorities] = useState([])
 
     useEffect(() => {
-        fetch("http://localhost:8080/priorities")
+        fetch("http://" + ip + ":8080/priorities")
                 .then(res => res.json())
                 .then(data => {
                     setPriorities(data)
@@ -77,7 +78,7 @@ const TaskListView = ({route}) => {
 }
 
 const getTasks = (setTasks, project) => {
-    fetch("http://localhost:8080/tasks/project/" + project.id)
+    fetch("http://" + ip + ":8080/tasks/project/" + project.id)
                 .then(res => res.json())
                 .then(data => {
                     setTasks((prev) => data)
@@ -249,16 +250,16 @@ export const AddTask = ({parenttask, status, setModalVisible, project, statusLis
                 {deadlineError.length > 0 && <Text style={{color: 'red'}}>{deadlineError}</Text>}
                 <TextInput placeholder=" yyyy-MM-dd HH:mm:ss" placeholderTextColor={"gray"} onChangeText={(text) => setDeadline(text)} value={deadline} style={styles.addProjectInput} label/>
                 <Text style={styles.inputlabel}>Status</Text>
-                <Picker selectedValue={selectedStatus} onValueChange={(itemValue, itemIndex) => setSelectedStatus(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
-                    {statusList.map((statusItem) => (<Picker.Item label={statusItem} value={statusItem} key={statusItem}/>))}
+                <Picker selectedValue={selectedStatus} onValueChange={(itemValue, itemIndex) => setSelectedStatus(itemValue)} style={styles.addPicker}>
+                    {statusList.map((statusItem) => (<Picker.Item label={statusItem} value={statusItem} key={statusItem} color="black"/>))}
                 </Picker>
                 <Text style={styles.inputlabel}>Category</Text>
-                <Picker selectedValue={selectedCategory} onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
-                    {categories.map((category) => (<Picker.Item label={category.name} value={category.id} key={category.id}/>))}
+                <Picker selectedValue={selectedCategory} onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)} style={styles.addPicker}>
+                    {categories.map((category) => (<Picker.Item label={category.name} value={category.id} key={category.id} color="black"/>))}
                 </Picker>
                 <Text style={styles.inputlabel}>Priority</Text>
-                <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
-                    {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id}/>))}
+                <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={styles.addPicker}>
+                    {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id} color="black"/>))}
                 </Picker>
                 <Pressable onPress={handleSubmit} style={styles.button}><Text style={styles.buttonText}>add task</Text></Pressable>
                 </ScrollView>
@@ -272,7 +273,7 @@ export const AddTask = ({parenttask, status, setModalVisible, project, statusLis
 
 export const postObject = async (data, setState, urlExtention, updateTaskLambda) => {
     try {
-      const response = await fetch('http://localhost:8080' + urlExtention, {
+      const response = await fetch("http://" + ip + ":8080" + urlExtention, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -325,7 +326,7 @@ const DeleteProject = ({setModalVisible, project}) => {
 
 const deleteProject = async (navigation, urlExtention, id) => {
     try {
-      const response = await fetch('http://localhost:8080' + urlExtention + id, {
+      const response = await fetch("http://" + ip + ":8080" + urlExtention + id, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

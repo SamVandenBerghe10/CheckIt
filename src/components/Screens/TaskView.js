@@ -20,6 +20,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 import { AddTask } from "./TaskListView";
+import { ip } from "./ProjectView";
 
 const TaskView = ({route}) => {
     
@@ -32,7 +33,7 @@ const TaskView = ({route}) => {
 
     useFocusEffect(
         useCallback(() => {
-        fetch("http://localhost:8080/tasks/" + task.id)
+        fetch("http://" + ip + ":8080/tasks/" + task.id)
                 .then(res => res.json())
                 .then(data => {
                     setTask(data)
@@ -110,7 +111,7 @@ const TaskView = ({route}) => {
 }
 
 const getTask = (setTask, task) => {
-    fetch("http://localhost:8080/tasks/" + task.id)
+    fetch("http://" + ip + ":8080/tasks/" + task.id)
                 .then(res => res.json())
                 .then(data => {
                     setTask(data)
@@ -227,7 +228,7 @@ const EditTask = ({task, status, setModalVisible, project, statusList, categorie
 
 const updateTask = async (data, setState, urlExtention, id) => {
     try {
-      const response = await fetch('http://localhost:8080' + urlExtention + id, {
+      const response = await fetch("http://" + ip + ":8080" + urlExtention + id, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -250,7 +251,7 @@ const updateTask = async (data, setState, urlExtention, id) => {
   const deleteTask = async (task, navigation) => {
     try {
         console.log("delete task: " + task.id)
-        const response = await fetch('http://localhost:8080/tasks/delete/' + task.id, {
+        const response = await fetch("http://" + ip + ":8080/tasks/delete/" + task.id, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',

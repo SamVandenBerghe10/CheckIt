@@ -18,6 +18,7 @@ import { Dimensions } from "react-native"
 import {Picker} from '@react-native-picker/picker';
 import { Platform } from "react-native"
 import { useNavigation } from "@react-navigation/native"
+import { ip } from "./ProjectView"
 
 const SettingsView = () => {
       const { isDarkMode, toggleTheme } = useContext(ThemeContext);
@@ -51,7 +52,7 @@ const SettingsView = () => {
     const [selectedPriority, setSelectedPriority] = useState(0);
 
     useEffect(() => {
-        fetch("http://localhost:8080/priorities")
+        fetch("http://" + ip + ":8080/priorities")
                 .then(res => res.json())
                 .then(data => {
                     setPriorities(data)
@@ -112,8 +113,8 @@ const SettingsView = () => {
             <Switch value={isDarkMode} onValueChange={toggleTheme} style={{marginLeft: 20}}/>
             <View style={styles.horizontalLine}/>
                     <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Standard Priority:</Text>
-                    <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null, {width: 200}]}>
-                      {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id}/>))}
+                    <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, themeStyles.settingspicker, {width: 200}]}>
+                      {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id} color="black"/>))}
                     </Picker>
                     <View style={{marginLeft: 20, marginBottom: 10, alignContent: 'flex-start'}}>
                       <Pressable onPress={() => setStandardPriority(priorities, setPriorities, '/priorities/standard/', selectedPriority, navigation)} style={styles.button}><Text style={styles.buttonText}>update</Text></Pressable>
@@ -136,7 +137,7 @@ const SettingsView = () => {
               <View style={{marginLeft: 20}}>
                   <Pressable onPress={() => setAddCategoryVisible(!addCategoryVisible)} style={styles.button}><Text style={styles.buttonText}>Add category</Text></Pressable>
               </View>}
-              {addCategoryVisible && <View style={[themeStyles.taskColumn, styles.addCategoryContainer]}>
+              {addCategoryVisible && <View style={[themeStyles.taskColumn, styles.addCategoryContainer, {maxHeight: 400, marginTop: 20}]}>
               <Pressable onPress={() =>  handleCategorySaveCancel()} style={{position: 'absolute', right: 5, top: 5}}>
                 <Icon name='delete'size={20} color={isDarkMode ? '#0a3d62' : '#f0f0f0'}/>
               </Pressable>
@@ -171,7 +172,7 @@ const SettingsView = () => {
 }
 
 const getCategories = async (setCategories) => {
-  fetch("http://localhost:8080/categories")
+  fetch("http://" + ip + ":8080/categories")
     .then(res => res.json())
     .then(data => {
       setCategories((prev) => data)
@@ -182,7 +183,7 @@ const getCategories = async (setCategories) => {
 
 const deleteCategory = async (setState, urlExtention, id) => {
     try {
-      const response = await fetch('http://localhost:8080' + urlExtention + id, {
+      const response = await fetch("http://" + ip + ":8080" + urlExtention + id, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -202,7 +203,7 @@ const deleteCategory = async (setState, urlExtention, id) => {
 
   const setStandardPriority = async (data, setState, urlExtention, id, navigation, updatePriorityLambda) => {
     try {
-      const response = await fetch('http://localhost:8080' + urlExtention + id, {
+      const response = await fetch("http://" + ip + ":8080" + urlExtention + id, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
