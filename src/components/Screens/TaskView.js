@@ -64,10 +64,10 @@ const TaskView = ({route}) => {
     return (
         <View style={[styles.container, themeStyles.container]}>
             <ScrollView style={[styles.taskDetailContainer, themeStyles.projectTile]}>
-            <Pressable onLongPress={ () => deleteTask(task, navigation)} style={{position: 'absolute', right: 5, top: 5}}>
+            <Pressable onLongPress={ () => deleteTask(task, navigation)} style={{position: 'absolute', right: 5, top: 5}} accessible={true} accessibilityLabel="delete task" accesibilityHint="Double-tap to delete this task" accessibilityRole="button">
                 <Icon name='delete'size={20} color={isDarkMode ? '#0a3d62' : '#f0f0f0'}/>
             </Pressable>
-            <Text style={[styles.addProjectTitle, themeStyles.rProjectTile, themeStyles.rProjectTileName]}>{task.title}</Text>
+            <Text style={[styles.addProjectTitle, themeStyles.rProjectTile, themeStyles.rProjectTileName]} accessible={true} accessibilityLabel={"task " + task.title} accessibilityRole="header">{task.title}</Text>
                 <View style={[styles.taskDetailInfo ,themeStyles.childTaskContainer]}>
                     <Text style={[styles.inputlabel, themeStyles.taskText]}>Description:</Text>
                     {task.description?.length > 0 ? <Text style={[themeStyles.taskText, styles.taskDetailInfoIndividual]}>{task.description}</Text> : <Text style={[themeStyles.taskText, styles.taskDetailInfoIndividual]}>No description</Text>}
@@ -98,10 +98,10 @@ const TaskView = ({route}) => {
             <Pressable onPress={() => setModalVisible(true)} style={styles.updateTask}>
                 <Icon name='edit' color='white' size={20}/>
             </Pressable>
-            <Modal visible={modalVisible} animationType="fade" transparent={true} >
+            <Modal visible={modalVisible} animationType="fade" transparent={true} onRequestClose={() => setModalVisible(false)}>
                 <EditTask task={task} status={task.status} setModalVisible={setModalVisible} project={task.project} statusList={statusList} categories={categories} priorities={priorities} setTask={setTask}/>
             </Modal> 
-            <Modal visible={modalAddVisible} animationType="fade" transparent={true} >
+            <Modal visible={modalAddVisible} animationType="fade" transparent={true} onRequestClose={() => setModalAddVisible(false)}>
                 <AddTask parenttask={task} status={task.status} setModalVisible={setModalAddVisible} project={task.project} statusList={statusList} categories={categories} priorities={priorities} setTasks={setTask} titleText={'Add new Subtask to "' + task.title + '"'} updateTaskLambda={updateTaskLambda}/>
             </Modal> 
         </View>
@@ -191,10 +191,9 @@ const EditTask = ({task, status, setModalVisible, project, statusList, categorie
 
     return (
         <View style={styles.addProjectTransparant}>
-            <Pressable onPress={() => setModalVisible((prevModalVisible) => false)} activeOpacity={1}>
+            <Pressable onPress={() => setModalVisible((prevModalVisible) => false)} style={{flex: 1, justifyContent: 'center', maxHeight: 680}}>
             <TouchableWithoutFeedback>
-            <View style={styles.addProjectForm}>
-                <ScrollView>
+            <ScrollView style={styles.addProjectForm}>
                 <Text style={styles.addProjectTitle}>Edit Task: "{task.title}"</Text>
                 <Text style={styles.inputlabel}>Project Title:</Text>
                 {titleError.length > 0 && <Text style={{color: 'red'}}>{titleError}</Text>}
@@ -217,9 +216,7 @@ const EditTask = ({task, status, setModalVisible, project, statusList, categorie
                     {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id}/>))}
                 </Picker>
                 <Pressable onPress={handleSubmit} style={styles.button}><Text style={styles.buttonText}>update task</Text></Pressable>
-                </ScrollView>
-                
-            </View>
+            </ScrollView>
             </TouchableWithoutFeedback>
         </Pressable>
         </View>

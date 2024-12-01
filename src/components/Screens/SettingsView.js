@@ -16,7 +16,6 @@ import { postObject } from "./TaskListView"
 import { ThemeStyles } from "../../themes/themeStyles"
 import { Dimensions } from "react-native"
 import {Picker} from '@react-native-picker/picker';
-import { Platform } from "react-native"
 import { useNavigation } from "@react-navigation/native"
 import { ip } from "./ProjectView"
 
@@ -86,8 +85,8 @@ const SettingsView = () => {
       setColorError("")
       if(validateCategoryPost(temp))
       {
-        var updateTaskLambda = () => {getCategories(setCategories)}
-        postObject(temp, setCategories, '/categories/add', updateTaskLambda)
+        var updateCategoryLambda = () => {getCategories(setCategories)}
+        postObject(temp, setCategories, '/categories/add', updateCategoryLambda)
         setAddCategoryVisible(false)
         setAddCategoryName("")
         setAddCategoryDescription("")
@@ -110,14 +109,14 @@ const SettingsView = () => {
         <ScrollView style={{width:'75%'}}>
           <View style={styles.settings}>
             <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Dark Mode:</Text>
-            <Switch value={isDarkMode} onValueChange={toggleTheme} style={{marginLeft: 20}}/>
+            <Switch value={isDarkMode} onValueChange={toggleTheme} style={{marginLeft: 20}} accessible={true} accessibilityLabel={isDarkMode ? "disable darkmode" : "enable darkmode"} accesibilityHint="press to switch setting" accessibilityRole="switch" accessibilityValue={{min: 0, max: 1, now: isDarkMode, text: isDarkMode ? "enabled": "disabled"}}/>
             <View style={styles.horizontalLine}/>
                     <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Standard Priority:</Text>
                     <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, themeStyles.settingspicker, {width: 200}]}>
                       {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id} color="black"/>))}
                     </Picker>
                     <View style={{marginLeft: 20, marginBottom: 10, alignContent: 'flex-start'}}>
-                      <Pressable onPress={() => setStandardPriority(priorities, setPriorities, '/priorities/standard/', selectedPriority, navigation)} style={styles.button}><Text style={styles.buttonText}>update</Text></Pressable>
+                      <Pressable onPress={() => setStandardPriority(priorities, setPriorities, '/priorities/standard/', selectedPriority, navigation)} style={styles.button} accessible={true} accessibilityLabel="update standard priority" accesibilityHint="Double-tap to update standard priority" accessibilityRole="button"><Text style={styles.buttonText}>update</Text></Pressable>
                     </View>
                     <View style={styles.horizontalLine}/>
             <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Categories:</Text>
@@ -126,19 +125,19 @@ const SettingsView = () => {
                 data={categories}
                 renderItem={({ item }) =>
                   <View style={[styles.category, themeStyles.task, {borderColor: item.color}]}>
-                    <Text style={themeStyles.taskText}>{item.name}</Text>
-                    <Pressable onLongPress={ () => deleteCategory(setCategories, '/categories/delete/',item.id)} style={{borderColor: item.color}}>
+                    <Text style={themeStyles.taskText} accessible={true} accessibilityLabel={"category " + item.name} accessibilityRole="text">{item.name}</Text>
+                    <Pressable onLongPress={ () => deleteCategory(setCategories, '/categories/delete/',item.id)} style={{borderColor: item.color}} accessible={true} accessibilityLabel="delete category" accesibilityHint="Double-tap to delete this category" accessibilityRole="button">
                       <Icon name='delete'size={20} color={isDarkMode ? '#f0f0f0' : '#0a3d62'}/>
                     </Pressable>
                   </View>}
-              keyExtractor={(item) => item.id} numColumns={columnsNumber} key={columnsNumber} nestedScrollEnabled/>): 
+              keyExtractor={(item) => item.id} numColumns={columnsNumber} key={columnsNumber} nestedScrollEnabled={true}/>): 
               (<Text>No categories yet</Text>)}
               {!addCategoryVisible && 
               <View style={{marginLeft: 20}}>
-                  <Pressable onPress={() => setAddCategoryVisible(!addCategoryVisible)} style={styles.button}><Text style={styles.buttonText}>Add category</Text></Pressable>
+                  <Pressable onPress={() => setAddCategoryVisible(!addCategoryVisible)} style={styles.button} accessible={true} accessibilityLabel="add category" accesibilityHint="Double-tap to add a category" accessibilityRole="button"><Text style={styles.buttonText}>Add category</Text></Pressable>
               </View>}
               {addCategoryVisible && <View style={[themeStyles.taskColumn, styles.addCategoryContainer, {maxHeight: 400, marginTop: 20}]}>
-              <Pressable onPress={() =>  handleCategorySaveCancel()} style={{position: 'absolute', right: 5, top: 5}}>
+              <Pressable onPress={() =>  handleCategorySaveCancel()} style={{position: 'absolute', right: 5, top: 5}} accessible={true} accessibilityLabel="remove add-category-menu" accesibilityHint="Double-tap to remove the add-category-menu" accessibilityRole="button">
                 <Icon name='delete'size={20} color={isDarkMode ? '#0a3d62' : '#f0f0f0'}/>
               </Pressable>
               <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Add a new category</Text>
@@ -163,7 +162,7 @@ const SettingsView = () => {
                     useNativeLayout={false}
                     style={{margin: 20}}
                 />
-              <Pressable onPress={handleCategorySave} style={[styles.button, themeStyles.task]}><Text style={[styles.buttonText, themeStyles.taskText]}>save</Text></Pressable>
+              <Pressable onPress={handleCategorySave} style={[styles.button, themeStyles.task]}><Text style={[styles.buttonText, themeStyles.taskText]} accessible={true} accessibilityLabel="add new category" accesibilityHint="Double-tap to save new category" accessibilityRole="button">save</Text></Pressable>
             </View>}
             </View>   
         </ScrollView> 

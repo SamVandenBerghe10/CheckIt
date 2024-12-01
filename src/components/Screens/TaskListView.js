@@ -10,7 +10,6 @@ import {Picker} from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
 import { useContext } from "react"
 import { ThemeContext } from "../../../App"
-import { Platform } from "react-native"
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { ThemeStyles } from "../../themes/themeStyles"
 import { useFocusEffect } from "@react-navigation/native";
@@ -63,14 +62,14 @@ const TaskListView = ({route}) => {
     const [deleteModal, setDeleteModal] = useState(false)
     return (
         <View style={[styles.container2, themeStyles.container]}>
-            <Pressable onPress={() => setDeleteModal(true)} style={{position: 'absolute', right: 10, top: 10}}>
+            <Text style={[styles.taskHeader ,themeStyles.projectTile, themeStyles.projectTileName]} accessible={true} accessibilityLabel={"All tasks of roject " + project.name} accessibilityRole="header">{project.name}</Text>
+            <Pressable onPress={() => setDeleteModal(true)} style={{position: 'absolute', right: 10, top: 10}} accessible={true} accessibilityLabel="Delete Project" accesibilityHint={"Double tap to delete a project"} accessibilityRole="button">
                 <Icon name='delete'size={30} color={isDarkMode ? '#f0f0f0' : '#0a3d62'}/>
             </Pressable>
-            <Text style={[styles.taskHeader ,themeStyles.projectTile, themeStyles.projectTileName]}>{project.name}</Text>
             <ScrollView horizontal>
                 <FlatList data={statusList} renderItem={({item}) => <TaskColumn status={item} tasks={tasks} setTasks={setTasks} statusList={statusList} categories={categories} priorities={priorities} project={project}/>} numColumns={4}/>
             </ScrollView>
-            <Modal visible={deleteModal} animationType="fade" transparent={true} >
+            <Modal visible={deleteModal} animationType="fade" transparent={true} onRequestClose={() => setDeleteModal(false)}>
                 <DeleteProject setModalVisible={setDeleteModal} project={project} />
             </Modal>
         </View>
@@ -98,10 +97,10 @@ const TaskColumn = ({status, tasks, setTasks, statusList, categories, priorities
         <View style={[styles.taskColumn, themeStyles.taskColumn]}>
             <Text style={[styles.taskColumnText, themeStyles.projectTileName]}>{status}</Text>
             <FlatList data={tasks.filter(i => i.status == status && i.parenttaskid == null)} renderItem={({item}) => <Task task={item} statusList={statusList} categories={categories} priorities={priorities} project={project}></Task>}/>
-            <Pressable style={styles.addTask} onPress={() => setModalVisible(true)}>
+            <Pressable style={styles.addTask} onPress={() => setModalVisible(true)} accessible={true} accessibilityLabel="Add Task" accesibilityHint={"Double tap to add a task"} accessibilityRole="button">
                 <Icon name='add-circle' color='#0a3d62' size={20} style={{alignSelf: 'center', margin: 2}}/>
             </Pressable>
-            <Modal visible={modalVisible} animationType="fade" transparent={true} >
+            <Modal visible={modalVisible} animationType="fade" transparent={true} onRequestClose={() => setModalVisible(false)}>
                 <AddTask parenttask={null} status={status} setModalVisible={setModalVisible} project={project} statusList={statusList} categories={categories} priorities={priorities} setTasks={setTasks} titleText={'Add new Task in "' + status + '"'} updateTaskLambda={updateTaskLambda}/>
             </Modal>
         </View>
@@ -143,7 +142,7 @@ export const Task = ({task, statusList, categories, priorities}) => {
         color = "red"
     }
     return (
-        <Pressable style={[styles.task, themeStyles.task, {borderColor: task.category?.color}]} onPress={() => navigation.push('TaskDetail', {temp, statusList, categories, priorities})}>
+        <Pressable style={[styles.task, themeStyles.task, {borderColor: task.category?.color}]} onPress={() => navigation.push('TaskDetail', {temp, statusList, categories, priorities})} accessible={true} accessibilityLabel={"Task: " + task.title} accesibilityHint={"Double tap open task"} accessibilityRole="button">
             <Text style={themeStyles.taskText}><Text style={{color: color}}>{title}</Text>{task.category ? " | " + category + " | ": " | "}{<PriorityIndicator priority={task.priority} style={{position: 'absolute', right: 1}}/>}{task.childtasks?.length > 0 ? <Icon name='account-tree' size={18} color={themeStyles.taskText} style={{position: 'absolute', right: 1}}/>: null}</Text>
         </Pressable>
     )
@@ -197,6 +196,8 @@ export const AddTask = ({parenttask, status, setModalVisible, project, statusLis
     const [titleError, setTitleError] = useState("");
     const [deadlineError, setDeadlineError] = useState("");
 
+    const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+
     const handleSubmit = () => {
         var temp ={id: -1, title: title, description: description, deadline: deadline, status: selectedStatus, projectid: project.id, categoryid: selectedCategory, priorityid: selectedPriority, childtasks: [], parenttaskid: parenttask?.id}
         setTitleError("")
@@ -236,10 +237,12 @@ export const AddTask = ({parenttask, status, setModalVisible, project, statusLis
 
     return (
         <View style={styles.addProjectTransparant}>
-            <Pressable onPress={() => setModalVisible((prevModalVisible) => false)} style={{flex: 1, justifyContent: 'center'}}>
+            <Pressable onPress={() => setModalVisible((prevModalVisible) => false)} style={{flex: 1, justifyContent: 'center', maxHeight: 720}}>
             <TouchableWithoutFeedback>
-            <View style={styles.addProjectForm}>
-                <ScrollView>
+            <ScrollView style={styles.addProjectForm}>
+                <Pressable onPress={() => setModalVisible(false)} style={{position: 'absolute', right: 10, top: 10}}>
+                    <Icon name='delete'size={18} color='#0a3d62'/>
+                </Pressable>
                 <Text style={styles.addProjectTitle}>{titleText}</Text>
                 <Text style={styles.inputlabel}>Project Title:</Text>
                 {titleError.length > 0 && <Text style={{color: 'red'}}>{titleError}</Text>}
@@ -262,9 +265,9 @@ export const AddTask = ({parenttask, status, setModalVisible, project, statusLis
                     {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id} color="black"/>))}
                 </Picker>
                 <Pressable onPress={handleSubmit} style={styles.button}><Text style={styles.buttonText}>add task</Text></Pressable>
-                </ScrollView>
+
                 
-            </View>
+            </ScrollView>
             </TouchableWithoutFeedback>
         </Pressable>
         </View>

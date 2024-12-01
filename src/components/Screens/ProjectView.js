@@ -45,10 +45,10 @@ const ProjectView = ({navigation}) => {
         <View style={[styles.container, themeStyles.container]}>
             <Text style={[styles.header, themeStyles.header]}><Icon name='done-all' color='#1169d4' size={40}/>CheckIt!</Text>
             <FlatList key={columnsNumber} data={projects} renderItem={({item}) => <Project navigation={navigation} project={item}/>} numColumns={columnsNumber}/>
-            <Pressable onPress={() => setModalVisible(true)} style={styles.addProject}>
-                <Icon name='add-circle' color='white' size={20}/>
+            <Pressable onPress={() => setModalVisible(true)} style={styles.addProject} > 
+                <Icon name='add-circle' color='white' size={20} accessible={true} accesibilityHint="Double-tap to add a new project" accessibilityLabel="add a new project" accessibilityRole="button"/>
             </Pressable>
-            <Modal visible={modalVisible} animationType="fade" transparent={true} >
+            <Modal visible={modalVisible} animationType="fade" transparent={true} onRequestClose={() => setModalVisible(false)}>
                 <AddProject setModalVisible={setModalVisible} setProjects={setProjects}/>
             </Modal>
         </View>
@@ -110,8 +110,11 @@ const AddProject = ({setModalVisible, setProjects}) => {
     return (
         <View style={styles.addProjectTransparant}>
             <Pressable onPress={() => setModalVisible(false)} style={{flex: 1, justifyContent: 'center'}}>
-            <TouchableWithoutFeedback >
+            <TouchableWithoutFeedback>
             <View style={styles.addProjectForm}>
+                <Pressable onPress={() => setModalVisible(false)} style={{position: 'absolute', right: 10, top: 10}}>
+                    <Icon name='delete'size={18} color='#0a3d62'/>
+                </Pressable>
                 <Text style={styles.addProjectTitle}>Add a new Project!</Text>
                 <Text style={styles.inputlabel}>Project name:</Text>
                 {nameError.length > 0 && <Text style={{color: 'red'}}>{nameError}</Text>}

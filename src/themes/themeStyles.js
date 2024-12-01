@@ -1,6 +1,4 @@
 import { StyleSheet } from "react-native";
-import React from "react";
-import { useTheme } from "../../App";
 
 export const ThemeStyles = (isDarkMode) => StyleSheet.create({
     container: {
