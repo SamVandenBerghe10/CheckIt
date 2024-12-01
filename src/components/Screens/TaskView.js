@@ -9,7 +9,6 @@ import { PriorityIndicator } from "./TaskListView";
 import { useState, useEffect } from "react"
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Modal } from "react-native";
-import { TouchableWithoutFeedback } from "react-native";
 import { TextInput } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Platform } from "react-native";
@@ -24,12 +23,14 @@ import { ip } from "./ProjectView";
 
 const TaskView = ({route}) => {
     
-    const {temp, statusList, categories, priorities} = route.params;
+    const {temp, statusList, tempCategories, priorities} = route.params;
 
     const { isDarkMode, toggleTheme } = useContext(ThemeContext);
     const themeStyles = ThemeStyles(isDarkMode)
 
     const [task, setTask] = useState(temp);
+
+    const [categories, setCategories] = useState(tempCategories);
 
     useFocusEffect(
         useCallback(() => {
@@ -41,6 +42,18 @@ const TaskView = ({route}) => {
                 })
                 .catch(error => console.error(error))
       
+    }, []))
+
+    useFocusEffect(
+        useCallback(() => {
+        fetch("http://" + ip + ":8080/categories")
+                .then(res => res.json())
+                .then(data => {
+                    var temp = [{id: 99999999, name: ""}, ...data]
+                    setCategories(temp)
+                    console.log("categories: " + JSON.stringify(temp))
+                })
+                .catch(error => console.error(error))
     }, []))
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -92,10 +105,10 @@ const TaskView = ({route}) => {
                 </View>)}
             </ScrollView>
             
-            <Pressable onPress={() => setModalAddVisible(true)} style={styles.addProject}>
+            <Pressable onPress={() => setModalAddVisible(true)} style={styles.addProject} accessible={true} accessibilityLabel="Add subtask" accesibilityHint="Double tap to add a subtask" accessibilityRole="button">
                 <Icon name='add-circle' color='white' size={20}/>
             </Pressable>
-            <Pressable onPress={() => setModalVisible(true)} style={styles.updateTask}>
+            <Pressable onPress={() => setModalVisible(true)} style={styles.updateTask} accessible={true} accessibilityLabel="Edit current task" accesibilityHint="Double tap to edit current task" accessibilityRole="button">
                 <Icon name='edit' color='white' size={20}/>
             </Pressable>
             <Modal visible={modalVisible} animationType="fade" transparent={true} onRequestClose={() => setModalVisible(false)}>
@@ -190,34 +203,37 @@ const EditTask = ({task, status, setModalVisible, project, statusList, categorie
       }
 
     return (
-        <View style={styles.addProjectTransparant}>
-            <Pressable onPress={() => setModalVisible((prevModalVisible) => false)} style={{flex: 1, justifyContent: 'center', maxHeight: 680}}>
-            <TouchableWithoutFeedback>
-            <ScrollView style={styles.addProjectForm}>
-                <Text style={styles.addProjectTitle}>Edit Task: "{task.title}"</Text>
-                <Text style={styles.inputlabel}>Project Title:</Text>
-                {titleError.length > 0 && <Text style={{color: 'red'}}>{titleError}</Text>}
+        <View style={styles.addProjectTransparant} accessible={false} importantForAccessibility="no-hide-descendants">
+            <Pressable onPress={() => setModalVisible((prevModalVisible) => false)} style={{flex: 1, justifyContent: 'center', maxHeight: 710}} accessible={false} importantForAccessibility="no">
+            <ScrollView style={styles.addProjectForm} accessible={false} importantForAccessibility="no">
+                <Pressable accessible={false} importantForAccessibility="no">
+                <Text style={styles.addProjectTitle} accessible={true} accessibilityLabel={"Edit Task: " + task.title} accessibilityRole="header">Edit Task: "{task.title}"</Text>
+                <Text style={styles.inputlabel } accessible={true} accessibilityLabel="task title" accessibilityRole="text">Title:</Text>
+                {titleError.length > 0 && <Text style={{color: 'red'}} accessible={true} accessibilityLabel={"title-error " + titleError} accessibilityRole="alert">{titleError}</Text>}
                 <TextInput placeholder="Task Title" placeholderTextColor={"gray"} onChangeText={(text) => setTitle(text)} value={title} style={styles.addProjectInput} label/>
-                <Text style={styles.inputlabel}>Task description:</Text>
+                <Text style={styles.inputlabel} accessible={true} accessibilityLabel="task description" accessibilityRole="text">Description:</Text>
                 <TextInput placeholder="Task Description" placeholderTextColor={"gray"} onChangeText={(text) => setDescription(text)} value={description} multiline numberOfLines={4} style={styles.addProjectInput}/>
-                <Text style={styles.inputlabel}>Deadline (yyyy-MM-dd HH:mm:ss):</Text>
-                {deadlineError.length > 0 && <Text style={{color: 'red'}}>{deadlineError}</Text>}
+                <Text style={styles.inputlabel} accessible={true} accessibilityLabel="task deadline" accessibilityRole="text">Deadline (yyyy-MM-dd HH:mm:ss):</Text>
+                {deadlineError.length > 0 && <Text style={{color: 'red'}} accessible={true} accessibilityLabel={"deadline-error " + deadlineError} accessibilityRole="text">{deadlineError}</Text>}
                 <TextInput placeholder="Task deadline" placeholderTextColor={"gray"} onChangeText={(text) => setDeadline(text)} value={deadline} style={styles.addProjectInput} label/>
-                <Text style={styles.inputlabel}>Status</Text>
+                <Text style={styles.inputlabel} accessible={true} accessibilityLabel="task status" accessibilityRole="text">Status</Text>
                 <Picker selectedValue={selectedStatus} onValueChange={(itemValue, itemIndex) => setSelectedStatus(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
                     {statusList.map((statusItem) => (<Picker.Item label={statusItem} value={statusItem} key={statusItem}/>))}
                 </Picker>
-                <Text>Category</Text>
+                <Text style={styles.inputlabel} accessible={true} accessibilityLabel="task category" accessibilityRole="text">Category</Text>
                 <Picker selectedValue={selectedCategory} onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
                     {categories.map((category) => (<Picker.Item label={category.name} value={category.id} key={category.id}/>))}
                 </Picker>
-                <Text>Priority</Text>
+                <Text style={styles.inputlabel} accessible={true} accessibilityLabel="task priority" accessibilityRole="text">Priority</Text>
                 <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
                     {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id}/>))}
                 </Picker>
-                <Pressable onPress={handleSubmit} style={styles.button}><Text style={styles.buttonText}>update task</Text></Pressable>
+                <Pressable onPress={handleSubmit} style={styles.button}><Text style={styles.buttonText} accessible={true} accessibilityLabel="update task" accessibilityHint="Double-tap to update task" accessibilityRole="button">update task</Text></Pressable>
+                <Pressable onPress={() => setModalVisible(false)} style={{alignSelf: "center"}} accessible={true} accessibilityLabel="remove edit-task-menu" accessibilityHint="Double-tap to remove edit-task-menu" accessibilityRole="button">
+                    <Icon name='keyboard-arrow-down'size={30} color='#0a3d62'/>
+                </Pressable>
+                </Pressable>
             </ScrollView>
-            </TouchableWithoutFeedback>
         </Pressable>
         </View>
     );

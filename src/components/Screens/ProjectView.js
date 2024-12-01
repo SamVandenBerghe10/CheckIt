@@ -1,5 +1,5 @@
 import React from "react"
-import { View, Text, FlatList, Dimensions, TouchableWithoutFeedback } from "react-native"
+import { View, Text, FlatList, Dimensions } from "react-native"
 import { styles } from "../../themes/styles"
 import { useState, useEffect } from "react"
 import { Modal } from "react-native"
@@ -43,7 +43,7 @@ const ProjectView = ({navigation}) => {
     const themeStyles = ThemeStyles(isDarkMode)
     return (
         <View style={[styles.container, themeStyles.container]}>
-            <Text style={[styles.header, themeStyles.header]}><Icon name='done-all' color='#1169d4' size={40}/>CheckIt!</Text>
+            <Text style={[styles.header, themeStyles.header]} accessible={true} accessibilityLabel="CheckIt" accessibilityRole="header"><Icon name='done-all' color='#1169d4' size={40}/>CheckIt!</Text>
             <FlatList key={columnsNumber} data={projects} renderItem={({item}) => <Project navigation={navigation} project={item}/>} numColumns={columnsNumber}/>
             <Pressable onPress={() => setModalVisible(true)} style={styles.addProject} > 
                 <Icon name='add-circle' color='white' size={20} accessible={true} accesibilityHint="Double-tap to add a new project" accessibilityLabel="add a new project" accessibilityRole="button"/>
@@ -69,7 +69,7 @@ const Project = ({navigation, project}) => {
     const { isDarkMode, toggleTheme } = useContext(ThemeContext);
     const themeStyles = ThemeStyles(isDarkMode)
     return (
-        <Pressable onPress={() => navigation.navigate('Tasks', {project})} style={[styles.projectTile, themeStyles.projectTile]}>
+        <Pressable onPress={() => navigation.navigate('Tasks', {project})} style={[styles.projectTile, themeStyles.projectTile]} accessible={true} accesibilityHint="Double-tap to see project" accessibilityLabel={"project " + project.name} accessibilityRole="menuItem">
             <Text style={[styles.projectTileName, themeStyles.projectTileName]}>Project {project.name}</Text>
             <Text style={themeStyles.projectTileDescription}>{project.description}</Text>
         </Pressable>
@@ -108,22 +108,22 @@ const AddProject = ({setModalVisible, setProjects}) => {
     }
 
     return (
-        <View style={styles.addProjectTransparant}>
-            <Pressable onPress={() => setModalVisible(false)} style={{flex: 1, justifyContent: 'center'}}>
-            <TouchableWithoutFeedback>
-            <View style={styles.addProjectForm}>
-                <Pressable onPress={() => setModalVisible(false)} style={{position: 'absolute', right: 10, top: 10}}>
-                    <Icon name='delete'size={18} color='#0a3d62'/>
+        <View style={styles.addProjectTransparant} accessible={false} importantForAccessibility="no-hide-descendants">
+            <Pressable onPress={() => setModalVisible(false)} style={{flex: 1, justifyContent: 'center'}} accessible={false} importantForAccessibility="no">
+            <View style={styles.addProjectForm} accessible={false} importantForAccessibility="no">
+                <Pressable accessible={false} importantForAccessibility="no">
+                    <Pressable onPress={() => setModalVisible(false)} style={{position: 'absolute', right: -20, top: 10}} accessible={true} accessibilityLabel="remove add-project-menu" accesibilityHint="Double-tap to remove the add-project-menu" accessibilityRole="button">
+                        <Icon name='delete'size={18} color='#0a3d62'/>
+                    </Pressable>
+                    <Text style={styles.addProjectTitle} accessible={true} accessibilityLabel="Add a new project" accessibilityRole="header">Add a new Project!</Text>
+                    <Text style={styles.inputlabel} accessible={true} accessibilityLabel="project name"  accessibilityRole="text">Project name:</Text>
+                    {nameError.length > 0 && <Text style={{color: 'red'}} accessible={true} accessibilityLabel={"name-error: " + nameError} accessibilityRole="alert">{nameError}</Text>}
+                    <TextInput placeholder="name" placeholderTextColor={"gray"} onChangeText={(text) => setName(text)} value={name} style={styles.addProjectInput} label/>
+                    <Text style={styles.inputlabel} accessible={true} accessibilityLabel={"project description"}  accessibilityRole="text">Project description:</Text>
+                    <TextInput placeholder="description" placeholderTextColor={"gray"} onChangeText={(text) => setDescription(text)} value={description} multiline numberOfLines={4} style={styles.addProjectInput}/>
+                    <Pressable onPress={handleSubmit} style={styles.button} accessible={true} accessibilityLabel={"add project"} accessibilityHint="Double-tap to add this project"  accessibilityRole="button"><Text style={styles.buttonText}>add project</Text></Pressable>
                 </Pressable>
-                <Text style={styles.addProjectTitle}>Add a new Project!</Text>
-                <Text style={styles.inputlabel}>Project name:</Text>
-                {nameError.length > 0 && <Text style={{color: 'red'}}>{nameError}</Text>}
-                <TextInput placeholder="name" placeholderTextColor={"gray"} onChangeText={(text) => setName(text)} value={name} style={styles.addProjectInput} label/>
-                <Text style={styles.inputlabel}>Project description:</Text>
-                <TextInput placeholder="description" placeholderTextColor={"gray"} onChangeText={(text) => setDescription(text)} value={description} multiline numberOfLines={4} style={styles.addProjectInput}/>
-                <Pressable onPress={handleSubmit} style={styles.button}><Text style={styles.buttonText}>add project</Text></Pressable>
             </View>
-            </TouchableWithoutFeedback>
         </Pressable>
         </View>
         

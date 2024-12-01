@@ -126,7 +126,7 @@ const SettingsView = () => {
                 renderItem={({ item }) =>
                   <View style={[styles.category, themeStyles.task, {borderColor: item.color}]}>
                     <Text style={themeStyles.taskText} accessible={true} accessibilityLabel={"category " + item.name} accessibilityRole="text">{item.name}</Text>
-                    <Pressable onLongPress={ () => deleteCategory(setCategories, '/categories/delete/',item.id)} style={{borderColor: item.color}} accessible={true} accessibilityLabel="delete category" accesibilityHint="Double-tap to delete this category" accessibilityRole="button">
+                    <Pressable onLongPress={ () => deleteCategory(setCategories, '/categories/delete/',item.id)} style={{borderColor: item.color}} accessible={true} accessibilityLabel={"delete category " + item.name} accesibilityHint="Double-tap to delete this category" accessibilityRole="button">
                       <Icon name='delete'size={20} color={isDarkMode ? '#f0f0f0' : '#0a3d62'}/>
                     </Pressable>
                   </View>}
@@ -161,6 +161,10 @@ const SettingsView = () => {
                     useNativeDriver={false}
                     useNativeLayout={false}
                     style={{margin: 20}}
+                    accessible={true}
+                    accessibilityLabel={"color " + addCategoryColor}
+                    accessibilityRole="button"
+                    accesibilityHint={"color " + addCategoryColor}
                 />
               <Pressable onPress={handleCategorySave} style={[styles.button, themeStyles.task]}><Text style={[styles.buttonText, themeStyles.taskText]} accessible={true} accessibilityLabel="add new category" accesibilityHint="Double-tap to save new category" accessibilityRole="button">save</Text></Pressable>
             </View>}
