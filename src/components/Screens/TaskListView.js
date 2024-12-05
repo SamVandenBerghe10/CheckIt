@@ -303,7 +303,6 @@ const DeleteProject = ({setModalVisible, project}) => {
         setConfirmError("Project name does not match")
         if(confirmText == project.name) {
             deleteProject(navigation, '/projects/delete/', project.id)
-            setConf
             setConfirmError("")
             setModalVisible((prevModalVisible) => false)
         }

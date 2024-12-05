@@ -13,7 +13,7 @@ import { useFocusEffect } from "@react-navigation/native"
 import { useCallback } from "react"
 import { Pressable } from "react-native"
 
-export const ip = "localhost"
+export const ip = "192.168.0.202"
 
 const ProjectView = ({navigation}) => {
     
@@ -35,8 +35,7 @@ const ProjectView = ({navigation}) => {
 
     useFocusEffect(
         useCallback(() => {
-            getProjects(setProjects)
-            getProjects(setFilteredProjects)
+            getProjects(setProjects, setFilteredProjects, setSearchProject)
     }, []))
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -59,17 +58,19 @@ const ProjectView = ({navigation}) => {
                 <Icon name='add-circle' color='white' size={20} accessible={true} accesibilityHint="Double-tap to add a new project" accessibilityLabel="add a new project" accessibilityRole="button"/>
             </Pressable>
             <Modal visible={modalVisible} animationType="fade" transparent={true} onRequestClose={() => setModalVisible(false)}>
-                <AddProject setModalVisible={setModalVisible} setProjects={setProjects}/>
+                <AddProject setModalVisible={setModalVisible} setProjects={setProjects} setFilteredProjects={setFilteredProjects} setSearchProject={setSearchProject}/>
             </Modal>
         </View>
     )
 }
 
-const getProjects = (setProjects) => {
+const getProjects = (setProjects, setFilteredProjects, setSearchProject) => {
     fetch("http://" + ip + ":8080/projects")
                 .then(res => res.json())
                 .then(data => {
                     setProjects((prev) => data)
+                    setFilteredProjects((prev) => data)
+                    setSearchProject((prev) => "")
                     console.log("projecten: " + JSON.stringify(data))
                 })
                 .catch(error => console.error(error))
@@ -86,13 +87,13 @@ const Project = ({navigation, project}) => {
     )
 }
 
-const AddProject = ({setModalVisible, setProjects}) => {
+const AddProject = ({setModalVisible, setProjects, setFilteredProjects, setSearchProject}) => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
 
     const [nameError, setNameError] = useState("");
 
-    const updateProjectLambda = () => {getProjects(setProjects)}
+    const updateProjectLambda = () => {getProjects(setProjects, setFilteredProjects, setSearchProject)}
 
     const handleSubmit = () => {
         var temp = {Id: -1, name: name, description: description}
