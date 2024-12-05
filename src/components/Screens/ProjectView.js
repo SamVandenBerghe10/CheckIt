@@ -13,7 +13,7 @@ import { useFocusEffect } from "@react-navigation/native"
 import { useCallback } from "react"
 import { Pressable } from "react-native"
 
-export const ip = "192.168.0.204"
+export const ip = "localhost"
 
 const ProjectView = ({navigation}) => {
     
@@ -31,20 +31,30 @@ const ProjectView = ({navigation}) => {
       }, []);
  
     const [projects, setProjects] = useState([])
+    const [filteredProjects, setFilteredProjects] = useState([])
 
     useFocusEffect(
         useCallback(() => {
             getProjects(setProjects)
+            getProjects(setFilteredProjects)
     }, []))
 
     const [modalVisible, setModalVisible] = useState(false);
 
     const { isDarkMode, toggleTheme } = useContext(ThemeContext);
     const themeStyles = ThemeStyles(isDarkMode)
+
+    const [searchProject, setSearchProject] = useState("");
+
+    const filterProjects = (text) => {
+        setSearchProject(text)
+        setFilteredProjects(projects.filter(project => project.name.toLowerCase().includes(text.toLowerCase())))
+    }
     return (
         <View style={[styles.container, themeStyles.container]}>
             <Text style={[styles.header, themeStyles.header]} accessible={true} accessibilityLabel="CheckIt" accessibilityRole="header"><Icon name='done-all' color='#1169d4' size={40}/>CheckIt!</Text>
-            <FlatList key={columnsNumber} data={projects} renderItem={({item}) => <Project navigation={navigation} project={item}/>} numColumns={columnsNumber}/>
+            <TextInput placeholder="search project" placeholderTextColor={"gray"} onChangeText={(text) => filterProjects(text)} value={searchProject} style={[styles.addProjectInput, {alignSelf: 'flex-end'}]} label/>
+            <FlatList key={columnsNumber} data={filteredProjects} renderItem={({item}) => <Project navigation={navigation} project={item}/>} numColumns={columnsNumber}/>
             <Pressable onPress={() => setModalVisible(true)} style={styles.addProject} > 
                 <Icon name='add-circle' color='white' size={20} accessible={true} accesibilityHint="Double-tap to add a new project" accessibilityLabel="add a new project" accessibilityRole="button"/>
             </Pressable>
