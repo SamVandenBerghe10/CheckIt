@@ -13,7 +13,7 @@ import { useFocusEffect } from "@react-navigation/native"
 import { useCallback } from "react"
 import { Pressable } from "react-native"
 
-export const ip = "192.168.0.202"
+export const ip = "localhost"
 
 const ProjectView = ({navigation}) => {
     
@@ -100,16 +100,20 @@ const AddProject = ({setModalVisible, setProjects, setFilteredProjects, setSearc
         if(validateProjectPost(name))
         {
             postObject(temp, setProjects, '/projects/add', updateProjectLambda)
-            setModalVisible(false)
-            setName("")
-            setDescription("")
-            setNameError("")
+            HandleExit()
         }
         else 
         {
             setNameError("Please enter a name for the project.")
         }
     };
+
+    const HandleExit = () => {
+        setName("")
+        setDescription("")
+        setNameError("")
+        setModalVisible(false)
+    }
 
     const validateProjectPost = (name) => {
         if(name.length > 0){
@@ -120,10 +124,10 @@ const AddProject = ({setModalVisible, setProjects, setFilteredProjects, setSearc
 
     return (
         <View style={styles.addProjectTransparant} accessible={false} importantForAccessibility="no-hide-descendants">
-            <Pressable onPress={() => setModalVisible(false)} style={{flex: 1, justifyContent: 'center'}} accessible={false} importantForAccessibility="no">
+            <Pressable onPress={() => HandleExit()} style={{flex: 1, justifyContent: 'center'}} accessible={false} importantForAccessibility="no">
             <View style={styles.addProjectForm} accessible={false} importantForAccessibility="no">
                 <Pressable accessible={false} importantForAccessibility="no">
-                    <Pressable onPress={() => setModalVisible(false)} style={{position: 'absolute', right: -20, top: 10}} accessible={true} accessibilityLabel="remove add-project-menu" accesibilityHint="Double-tap to remove the add-project-menu" accessibilityRole="button">
+                    <Pressable onPress={() => HandleExit()} style={{position: 'absolute', right: -20, top: 10}} accessible={true} accessibilityLabel="remove add-project-menu" accesibilityHint="Double-tap to remove the add-project-menu" accessibilityRole="button">
                         <Icon name='delete'size={18} color='#0a3d62'/>
                     </Pressable>
                     <Text style={styles.addProjectTitle} accessible={true} accessibilityLabel="Add a new project" accessibilityRole="header">Add a new Project!</Text>

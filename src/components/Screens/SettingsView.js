@@ -121,7 +121,7 @@ const SettingsView = () => {
                     <View style={styles.horizontalLine}/>
             <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Categories:</Text>
               {categories.length > 0 ? 
-              (<FlatList
+              (<ScrollView horizontal={true}><FlatList
                 data={categories}
                 renderItem={({ item }) =>
                   <View style={[styles.category, themeStyles.task, {borderColor: item.color}]}>
@@ -130,7 +130,7 @@ const SettingsView = () => {
                       <Icon name='delete'size={20} color={isDarkMode ? '#f0f0f0' : '#0a3d62'}/>
                     </Pressable>
                   </View>}
-              keyExtractor={(item) => item.id} numColumns={columnsNumber} key={columnsNumber} nestedScrollEnabled={true}/>): 
+              keyExtractor={(item) => item.id} numColumns={columnsNumber} key={columnsNumber} nestedScrollEnabled={true}/></ScrollView>): 
               (<Text>No categories yet</Text>)}
               {!addCategoryVisible && 
               <View style={{marginLeft: 20}}>

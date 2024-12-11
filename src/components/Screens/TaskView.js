@@ -149,9 +149,12 @@ const SubTask = ({task, statusList, categories, priorities, onGoBack}) => {
       }, []);
 
     return (
-        <FlatList data={task.childtasks} renderItem={({item}) => (
-            <Task task={item} statusList={statusList} categories={categories} priorities={priorities} onGoBack={onGoBack}/>
-        )} numColumns={columnsNumber} key={columnsNumber}/>
+        <ScrollView horizontal={true}>
+            <FlatList data={task.childtasks} renderItem={({item}) => (
+                <Task task={item} statusList={statusList} categories={categories} priorities={priorities} onGoBack={onGoBack}/>
+            )} numColumns={columnsNumber} key={columnsNumber}/>
+        </ScrollView>
+        
     )
 }
 

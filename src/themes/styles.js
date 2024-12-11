@@ -129,7 +129,8 @@ export const styles = StyleSheet.create({
         fontSize: 20,
         backgroundColor: '#1169d4',
         borderRadius: 15,
-        alignSelf: 'center'
+        alignSelf: 'center',
+        maxWidth: '80%',
     },
     addProjectTransparant: {
         flex: 1,

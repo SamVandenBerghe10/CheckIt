@@ -123,7 +123,7 @@ export const Task = ({task, statusList, categories, priorities}) => {
     var title = task.title
     if(task.title.length > 18)
     {
-        if(task.category?.name?.length > 10)
+        if(task.title?.length > 10)
         {
             title = task.title.substring(0, 17) + "..."
         }
