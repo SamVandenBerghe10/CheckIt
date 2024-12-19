@@ -14,23 +14,26 @@ import { ThemeStyles } from "../../themes/themeStyles"
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 import { Pressable } from "react-native"
-import { ip } from "./ProjectView"
+import { ActivityIndicator } from "react-native"
+import { api_url } from "./AppContent"
 
 const TaskListView = ({route}) => {
     var {project} = route.params
 
     const [tasks, setTasks] = useState([])
+
+    const [loading, setLoading] = useState(true)
     
     useFocusEffect(
         useCallback(() => {
-            getTasks(setTasks, project)
+            getTasks(setTasks, project, setLoading)
         }, []))
 
     const [categories, setCategories] = useState([])
 
     useFocusEffect(
         useCallback(() => {
-        fetch("http://" + ip + ":8080/categories")
+        fetch( api_url + "categories")
                 .then(res => res.json())
                 .then(data => {
                     var temp = [{id: 99999999, name: ""}, ...data]
@@ -43,7 +46,7 @@ const TaskListView = ({route}) => {
     const [priorities, setPriorities] = useState([])
 
     useEffect(() => {
-        fetch("http://" + ip + ":8080/priorities")
+        fetch(api_url + "priorities")
                 .then(res => res.json())
                 .then(data => {
                     setPriorities(data)
@@ -62,6 +65,7 @@ const TaskListView = ({route}) => {
     return (
         <View style={[styles.container2, themeStyles.container]}>
             <Text style={[styles.taskHeader ,themeStyles.projectTile, themeStyles.projectTileName]} accessible={true} accessibilityLabel={"Tasks of project " + project.name} accessibilityRole="header">{project.name}</Text>
+            {loading ? <ActivityIndicator size="large"/>: null}
             <Pressable onPress={() => setDeleteModal(true)} style={{position: 'absolute', right: 10, top: 10}} accessible={true} accessibilityLabel="Delete Project" accesibilityHint={"Double tap to delete a project"} accessibilityRole="button">
                 <Icon name='delete'size={30} color={isDarkMode ? '#f0f0f0' : '#0a3d62'}/>
             </Pressable>
@@ -75,14 +79,19 @@ const TaskListView = ({route}) => {
     )
 }
 
-const getTasks = (setTasks, project) => {
-    fetch("http://" + ip + ":8080/tasks/project/" + project.id)
+const getTasks = async (setTasks, project, setLoading) => {
+    setLoading(true)
+    await fetch(api_url + "tasks/project/" + project.id)
                 .then(res => res.json())
                 .then(data => {
+                    setLoading(false)
                     setTasks((prev) => data)
                     console.log("tasks: " + JSON.stringify(data))
                 })
-                .catch(error => console.error(error))
+                .catch(error => {
+                    setLoading(false)
+                    console.error(error)
+                })
 }
 
 const TaskColumn = ({status, tasks, setTasks, statusList, categories, priorities, project}) => {
@@ -203,7 +212,7 @@ export const AddTask = ({parenttask, status, setModalVisible, project, statusLis
         setTitleError("")
         setDeadlineError("")
         if(validateTaskPost(temp)) {
-            postObject(temp, setTasks, '/tasks/add', updateTaskLambda)
+            postObject(temp, setTasks, 'tasks/add', updateTaskLambda)
             setModalVisible((prevModalVisible) => false)
             setTitle('')
             setDescription('')
@@ -274,7 +283,7 @@ export const AddTask = ({parenttask, status, setModalVisible, project, statusLis
 
 export const postObject = async (data, setState, urlExtention, updateTaskLambda) => {
     try {
-      const response = await fetch("http://" + ip + ":8080" + urlExtention, {
+      const response = await fetch(api_url + urlExtention, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -302,7 +311,7 @@ const DeleteProject = ({setModalVisible, project}) => {
     const HandleProjectDelete = () => {
         setConfirmError("Project name does not match")
         if(confirmText == project.name) {
-            deleteProject(navigation, '/projects/delete/', project.id)
+            deleteProject(navigation, 'projects/delete/', project.id)
             setConfirmError("")
             setModalVisible((prevModalVisible) => false)
         }
@@ -330,7 +339,7 @@ const DeleteProject = ({setModalVisible, project}) => {
 
 const deleteProject = async (navigation, urlExtention, id) => {
     try {
-      const response = await fetch("http://" + ip + ":8080" + urlExtention + id, {
+      const response = await fetch(api_url + urlExtention + id, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

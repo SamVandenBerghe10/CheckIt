@@ -17,6 +17,8 @@ export default AppContent = () => {
     )
 }
 
+export const api_url = "https://checkit-444817.ew.r.appspot.com/"
+
 const Styles = (isDarkMode) => StyleSheet.create({
     container: {
       flex: 1,

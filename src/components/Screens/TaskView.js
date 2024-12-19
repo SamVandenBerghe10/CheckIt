@@ -19,7 +19,8 @@ import { useNavigation } from "@react-navigation/native";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback } from "react";
 import { AddTask } from "./TaskListView";
-import { ip } from "./ProjectView";
+import { ActivityIndicator } from "react-native"
+import { api_url } from "./AppContent";
 
 const TaskView = ({route}) => {
     
@@ -29,24 +30,25 @@ const TaskView = ({route}) => {
     const themeStyles = ThemeStyles(isDarkMode)
 
     const [task, setTask] = useState(temp);
-
     const [categories, setCategories] = useState(tempCategories);
+
+    const [loading, setLoading] = useState(true)
 
     useFocusEffect(
         useCallback(() => {
-        fetch("http://" + ip + ":8080/tasks/" + task.id)
+        fetch(api_url + "tasks/" + task.id)
                 .then(res => res.json())
                 .then(data => {
+                    setLoading(false)
                     setTask(data)
                     console.log("task: " + JSON.stringify(data))
                 })
-                .catch(error => console.error(error))
-      
-    }, []))
+                .catch(error => {
+                    setLoading(false)
+                    console.error(error)
+                })
 
-    useFocusEffect(
-        useCallback(() => {
-        fetch("http://" + ip + ":8080/categories")
+        fetch(api_url + "categories")
                 .then(res => res.json())
                 .then(data => {
                     var temp = [{id: 99999999, name: ""}, ...data]
@@ -54,6 +56,12 @@ const TaskView = ({route}) => {
                     console.log("categories: " + JSON.stringify(temp))
                 })
                 .catch(error => console.error(error))
+      
+    }, []))
+
+    useFocusEffect(
+        useCallback(() => {
+        
     }, []))
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -81,6 +89,7 @@ const TaskView = ({route}) => {
                 <Icon name='delete'size={20} color={isDarkMode ? '#0a3d62' : '#f0f0f0'}/>
             </Pressable>
             <Text style={[styles.addProjectTitle, themeStyles.rProjectTile, themeStyles.rProjectTileName]} accessible={true} accessibilityLabel={"task " + task.title} accessibilityRole="header">{task.title}</Text>
+            {loading ? <ActivityIndicator size="large"/>: null}
                 <View style={[styles.taskDetailInfo ,themeStyles.childTaskContainer]}>
                     <Text style={[styles.inputlabel, themeStyles.taskText]}>Description:</Text>
                     {task.description?.length > 0 ? <Text style={[themeStyles.taskText, styles.taskDetailInfoIndividual]}>{task.description}</Text> : <Text style={[themeStyles.taskText, styles.taskDetailInfoIndividual]}>No description</Text>}
@@ -124,7 +133,7 @@ const TaskView = ({route}) => {
 }
 
 const getTask = (setTask, task) => {
-    fetch("http://" + ip + ":8080/tasks/" + task.id)
+    fetch(api_url + "tasks/" + task.id)
                 .then(res => res.json())
                 .then(data => {
                     setTask(data)
@@ -244,7 +253,7 @@ const EditTask = ({task, status, setModalVisible, project, statusList, categorie
 
 const updateTask = async (data, setState, urlExtention, id) => {
     try {
-      const response = await fetch("http://" + ip + ":8080" + urlExtention + id, {
+      const response = await fetch(api_url + urlExtention + id, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -267,7 +276,7 @@ const updateTask = async (data, setState, urlExtention, id) => {
   const deleteTask = async (task, navigation) => {
     try {
         console.log("delete task: " + task.id)
-        const response = await fetch("http://" + ip + ":8080/tasks/delete/" + task.id, {
+        const response = await fetch(api_url + "tasks/delete/" + task.id, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json',

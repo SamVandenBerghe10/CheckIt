@@ -17,7 +17,7 @@ import { ThemeStyles } from "../../themes/themeStyles"
 import { Dimensions } from "react-native"
 import {Picker} from '@react-native-picker/picker';
 import { useNavigation } from "@react-navigation/native"
-import { ip } from "./ProjectView"
+import { api_url } from "./AppContent"
 
 const SettingsView = () => {
       const { isDarkMode, toggleTheme } = useContext(ThemeContext);
@@ -50,15 +50,21 @@ const SettingsView = () => {
     const [priorities, setPriorities] = useState([])
     const [selectedPriority, setSelectedPriority] = useState(0);
 
+    const [loading, setLoading] = useState(true)
+
     useEffect(() => {
-        fetch("http://" + ip + ":8080/priorities")
+        fetch(api_url + "priorities")
                 .then(res => res.json())
                 .then(data => {
-                    setPriorities(data)
-                    setSelectedPriority(data.find(priority => priority.standardpriority === true)?.id)
-                    console.log("priorities: " + JSON.stringify(data))
+                  setLoading(false)
+                  setPriorities(data)
+                  setSelectedPriority(data.find(priority => priority.standardpriority === true)?.id)
+                  console.log("priorities: " + JSON.stringify(data))
                 })
-                .catch(error => console.error(error))
+                .catch(error => {
+                  setLoading(false)
+                  console.error(error)
+                })
       
     }, [])
 
@@ -86,7 +92,7 @@ const SettingsView = () => {
       if(validateCategoryPost(temp))
       {
         var updateCategoryLambda = () => {getCategories(setCategories)}
-        postObject(temp, setCategories, '/categories/add', updateCategoryLambda)
+        postObject(temp, setCategories, 'categories/add', updateCategoryLambda)
         setAddCategoryVisible(false)
         setAddCategoryName("")
         setAddCategoryDescription("")
@@ -108,6 +114,7 @@ const SettingsView = () => {
       <View style={[styles.container, themeStyles.container]}>
         <ScrollView style={{width:'75%'}}>
           <View style={styles.settings}>
+            {loading ? <ActivityIndicator size="large"/>: null}
             <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Dark Mode:</Text>
             <Switch value={isDarkMode} onValueChange={toggleTheme} style={{marginLeft: 20}} accessible={true} accessibilityLabel={isDarkMode ? "disable darkmode" : "enable darkmode"} accesibilityHint="press to switch setting" accessibilityRole="switch" accessibilityValue={{min: 0, max: 1, now: isDarkMode, text: isDarkMode ? "enabled": "disabled"}}/>
             <View style={styles.horizontalLine}/>
@@ -126,7 +133,7 @@ const SettingsView = () => {
                 renderItem={({ item }) =>
                   <View style={[styles.category, themeStyles.task, {borderColor: item.color}]}>
                     <Text style={themeStyles.taskText} accessible={true} accessibilityLabel={"category " + item.name} accessibilityRole="text">{item.name}</Text>
-                    <Pressable onLongPress={ () => deleteCategory(setCategories, '/categories/delete/',item.id)} style={{borderColor: item.color}} accessible={true} accessibilityLabel={"delete category " + item.name} accesibilityHint="Double-tap to delete this category" accessibilityRole="button">
+                    <Pressable onLongPress={ () => deleteCategory(setCategories, 'categories/delete/',item.id)} style={{borderColor: item.color}} accessible={true} accessibilityLabel={"delete category " + item.name} accesibilityHint="Double-tap to delete this category" accessibilityRole="button">
                       <Icon name='delete'size={20} color={isDarkMode ? '#f0f0f0' : '#0a3d62'}/>
                     </Pressable>
                   </View>}
@@ -175,7 +182,7 @@ const SettingsView = () => {
 }
 
 const getCategories = async (setCategories) => {
-  fetch("http://" + ip + ":8080/categories")
+  fetch(api_url + "categories")
     .then(res => res.json())
     .then(data => {
       setCategories((prev) => data)
@@ -186,7 +193,7 @@ const getCategories = async (setCategories) => {
 
 const deleteCategory = async (setState, urlExtention, id) => {
     try {
-      const response = await fetch("http://" + ip + ":8080" + urlExtention + id, {
+      const response = await fetch(api_url + urlExtention + id, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -206,7 +213,7 @@ const deleteCategory = async (setState, urlExtention, id) => {
 
   const setStandardPriority = async (data, setState, urlExtention, id, navigation, updatePriorityLambda) => {
     try {
-      const response = await fetch("http://" + ip + ":8080" + urlExtention + id, {
+      const response = await fetch(api_url + urlExtention + id, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -12,6 +12,8 @@ import { ThemeStyles } from "../../themes/themeStyles"
 import { useFocusEffect } from "@react-navigation/native"
 import { useCallback } from "react"
 import { Pressable } from "react-native"
+import { ActivityIndicator } from "react-native"
+import { api_url } from "./AppContent"
 
 export const ip = "localhost"
 
@@ -33,9 +35,11 @@ const ProjectView = ({navigation}) => {
     const [projects, setProjects] = useState([])
     const [filteredProjects, setFilteredProjects] = useState([])
 
+    const [loading, setLoading] = useState(true)
+
     useFocusEffect(
         useCallback(() => {
-            getProjects(setProjects, setFilteredProjects, setSearchProject)
+            getProjects(setProjects, setFilteredProjects, setSearchProject, setLoading)
     }, []))
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -53,6 +57,8 @@ const ProjectView = ({navigation}) => {
         <View style={[styles.container, themeStyles.container]}>
             <Text style={[styles.header, themeStyles.header]} accessible={true} accessibilityLabel="CheckIt" accessibilityRole="header"><Icon name='done-all' color='#1169d4' size={40}/>CheckIt!</Text>
             <TextInput placeholder="search project" placeholderTextColor={"gray"} onChangeText={(text) => filterProjects(text)} value={searchProject} style={[styles.addProjectInput, {alignSelf: 'flex-end'}]} label/>
+            {loading ? <ActivityIndicator size="large"/>: null}
+            {loading == false && projects.length == 0 ? <Text>0 Projects found</Text>: null}
             <FlatList key={columnsNumber} data={filteredProjects} renderItem={({item}) => <Project navigation={navigation} project={item}/>} numColumns={columnsNumber}/>
             <Pressable onPress={() => setModalVisible(true)} style={styles.addProject} > 
                 <Icon name='add-circle' color='white' size={20} accessible={true} accesibilityHint="Double-tap to add a new project" accessibilityLabel="add a new project" accessibilityRole="button"/>
@@ -64,16 +70,21 @@ const ProjectView = ({navigation}) => {
     )
 }
 
-const getProjects = (setProjects, setFilteredProjects, setSearchProject) => {
-    fetch("http://" + ip + ":8080/projects")
+const getProjects = async (setProjects, setFilteredProjects, setSearchProject, setLoading) => {
+    setLoading(true)
+    await fetch( api_url + "projects")
                 .then(res => res.json())
                 .then(data => {
+                    setLoading(false)
                     setProjects((prev) => data)
                     setFilteredProjects((prev) => data)
                     setSearchProject((prev) => "")
                     console.log("projecten: " + JSON.stringify(data))
                 })
-                .catch(error => console.error(error))
+                .catch(error => {
+                    console.error(error)
+                    setLoading(false)
+                })
 }
 
 const Project = ({navigation, project}) => {
@@ -99,7 +110,7 @@ const AddProject = ({setModalVisible, setProjects, setFilteredProjects, setSearc
         var temp = {Id: -1, name: name, description: description}
         if(validateProjectPost(name))
         {
-            postObject(temp, setProjects, '/projects/add', updateProjectLambda)
+            postObject(temp, setProjects, 'projects/add', updateProjectLambda)
             HandleExit()
         }
         else 
