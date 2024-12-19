@@ -26,7 +26,7 @@ const TaskListView = ({route}) => {
     
     useFocusEffect(
         useCallback(() => {
-            getTasks(setTasks, project, setLoading)
+            getTasks({setTasks, project, setLoading})
         }, []))
 
     const [categories, setCategories] = useState([])
@@ -70,7 +70,7 @@ const TaskListView = ({route}) => {
                 <Icon name='delete'size={30} color={isDarkMode ? '#f0f0f0' : '#0a3d62'}/>
             </Pressable>
             <ScrollView horizontal>
-                <FlatList data={statusList} renderItem={({item}) => <TaskColumn status={item} tasks={tasks} setTasks={setTasks} statusList={statusList} categories={categories} priorities={priorities} project={project}/>} numColumns={4}/>
+                <FlatList data={statusList} renderItem={({item}) => <TaskColumn status={item} tasks={tasks} setTasks={setTasks} statusList={statusList} categories={categories} priorities={priorities} project={project} setLoading={setLoading}/>} numColumns={4}/>
             </ScrollView>
             <Modal visible={deleteModal} animationType="fade" transparent={true} onRequestClose={() => setDeleteModal(false)}>
                 <DeleteProject setModalVisible={setDeleteModal} project={project} />
@@ -79,7 +79,9 @@ const TaskListView = ({route}) => {
     )
 }
 
-const getTasks = async (setTasks, project, setLoading) => {
+const getTasks = async (props) => {
+    const {setTasks, project, setLoading} = props
+
     setLoading(true)
     await fetch(api_url + "tasks/project/" + project.id)
                 .then(res => res.json())
@@ -94,13 +96,15 @@ const getTasks = async (setTasks, project, setLoading) => {
                 })
 }
 
-const TaskColumn = ({status, tasks, setTasks, statusList, categories, priorities, project}) => {
+const TaskColumn = (props) => {
+    const {status, tasks, setTasks, statusList, categories, priorities, project, setLoading} = props
+
     const [modalVisible, setModalVisible] = useState(false);
 
     const { isDarkMode, toggleTheme } = useContext(ThemeContext);
     const themeStyles = ThemeStyles(isDarkMode)
 
-    const updateTaskLambda = () => {getTasks(setTasks, project)}
+    const updateTaskLambda = () => {getTasks({setTasks, project, setLoading})}
     return (
         <View style={[styles.taskColumn, themeStyles.taskColumn]}>
             <Text style={[styles.taskColumnText, themeStyles.projectTileName]}>{status}</Text>
@@ -115,7 +119,9 @@ const TaskColumn = ({status, tasks, setTasks, statusList, categories, priorities
     )
 }
 
-export const Task = ({task, statusList, categories, priorities}) => {
+export const Task = (props) => {
+    const {task, statusList, categories, priorities} = props
+
     const { isDarkMode, toggleTheme } = useContext(ThemeContext);
     const themeStyles = ThemeStyles(isDarkMode)
 
@@ -192,7 +198,9 @@ export const PriorityIndicator = ({priority}) =>{
     )
 }
 
-export const AddTask = ({parenttask, status, setModalVisible, project, statusList, categories, priorities, setTasks, titleText, updateTaskLambda}) => {
+export const AddTask = (props) => {
+    const {parenttask, status, setModalVisible, project, statusList, categories, priorities, setTasks, titleText, updateTaskLambda} = props
+
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     var date = new Date()
@@ -212,7 +220,7 @@ export const AddTask = ({parenttask, status, setModalVisible, project, statusLis
         setTitleError("")
         setDeadlineError("")
         if(validateTaskPost(temp)) {
-            postObject(temp, setTasks, 'tasks/add', updateTaskLambda)
+            postObject(temp, 'tasks/add', updateTaskLambda)
             setModalVisible((prevModalVisible) => false)
             setTitle('')
             setDescription('')
@@ -281,7 +289,7 @@ export const AddTask = ({parenttask, status, setModalVisible, project, statusLis
     );
 }
 
-export const postObject = async (data, setState, urlExtention, updateTaskLambda) => {
+export const postObject = async (data, urlExtention, updateTaskLambda) => {
     try {
       const response = await fetch(api_url + urlExtention, {
         method: 'POST',

@@ -39,7 +39,7 @@ const ProjectView = ({navigation}) => {
 
     useFocusEffect(
         useCallback(() => {
-            getProjects(setProjects, setFilteredProjects, setSearchProject, setLoading)
+            getProjects({setProjects, setFilteredProjects, setSearchProject, setLoading})
     }, []))
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -64,13 +64,15 @@ const ProjectView = ({navigation}) => {
                 <Icon name='add-circle' color='white' size={20} accessible={true} accesibilityHint="Double-tap to add a new project" accessibilityLabel="add a new project" accessibilityRole="button"/>
             </Pressable>
             <Modal visible={modalVisible} animationType="fade" transparent={true} onRequestClose={() => setModalVisible(false)}>
-                <AddProject setModalVisible={setModalVisible} setProjects={setProjects} setFilteredProjects={setFilteredProjects} setSearchProject={setSearchProject}/>
+                <AddProject setModalVisible={setModalVisible} setProjects={setProjects} setFilteredProjects={setFilteredProjects} setSearchProject={setSearchProject} setLoading={setLoading}/>
             </Modal>
         </View>
     )
 }
 
-const getProjects = async (setProjects, setFilteredProjects, setSearchProject, setLoading) => {
+const getProjects = async (props) => {
+    const {setProjects, setFilteredProjects, setSearchProject, setLoading} = props
+
     setLoading(true)
     await fetch( api_url + "projects")
                 .then(res => res.json())
@@ -87,7 +89,8 @@ const getProjects = async (setProjects, setFilteredProjects, setSearchProject, s
                 })
 }
 
-const Project = ({navigation, project}) => {
+const Project = (props) => {
+    const {navigation, project} = props
     const { isDarkMode, toggleTheme } = useContext(ThemeContext);
     const themeStyles = ThemeStyles(isDarkMode)
     return (
@@ -98,19 +101,21 @@ const Project = ({navigation, project}) => {
     )
 }
 
-const AddProject = ({setModalVisible, setProjects, setFilteredProjects, setSearchProject}) => {
+const AddProject = (props) => {
+    const {setModalVisible, setProjects, setFilteredProjects, setSearchProject, setLoading} = props
+
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
 
     const [nameError, setNameError] = useState("");
 
-    const updateProjectLambda = () => {getProjects(setProjects, setFilteredProjects, setSearchProject)}
+    const updateProjectLambda = () => {getProjects({setProjects, setFilteredProjects, setSearchProject, setLoading})}
 
     const handleSubmit = () => {
         var temp = {Id: -1, name: name, description: description}
         if(validateProjectPost(name))
         {
-            postObject(temp, setProjects, 'projects/add', updateProjectLambda)
+            postObject(temp, 'projects/add', updateProjectLambda)
             HandleExit()
         }
         else 

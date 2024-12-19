@@ -92,7 +92,7 @@ const SettingsView = () => {
       if(validateCategoryPost(temp))
       {
         var updateCategoryLambda = () => {getCategories(setCategories)}
-        postObject(temp, setCategories, 'categories/add', updateCategoryLambda)
+        postObject(temp, 'categories/add', updateCategoryLambda)
         setAddCategoryVisible(false)
         setAddCategoryName("")
         setAddCategoryDescription("")
@@ -123,7 +123,7 @@ const SettingsView = () => {
                       {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id} color="black"/>))}
                     </Picker>
                     <View style={{marginLeft: 20, marginBottom: 10, alignContent: 'flex-start'}}>
-                      <Pressable onPress={() => setStandardPriority(priorities, setPriorities, '/priorities/standard/', selectedPriority, navigation)} style={styles.button} accessible={true} accessibilityLabel="update standard priority" accesibilityHint="Double-tap to update standard priority" accessibilityRole="button"><Text style={styles.buttonText}>update</Text></Pressable>
+                      <Pressable onPress={() => setStandardPriority(priorities, '/priorities/standard/', selectedPriority, navigation)} style={styles.button} accessible={true} accessibilityLabel="update standard priority" accesibilityHint="Double-tap to update standard priority" accessibilityRole="button"><Text style={styles.buttonText}>update</Text></Pressable>
                     </View>
                     <View style={styles.horizontalLine}/>
             <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Categories:</Text>
@@ -211,7 +211,7 @@ const deleteCategory = async (setState, urlExtention, id) => {
     }
   };
 
-  const setStandardPriority = async (data, setState, urlExtention, id, navigation, updatePriorityLambda) => {
+  const setStandardPriority = async (data, urlExtention, id, navigation, updatePriorityLambda) => {
     try {
       const response = await fetch(api_url + urlExtention + id, {
         method: 'PUT',
