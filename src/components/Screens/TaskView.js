@@ -11,7 +11,6 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Modal } from "react-native";
 import { TextInput } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { Platform } from "react-native";
 import moment from "moment";
 import { ThemeStyles } from "../../themes/themeStyles";
 import { Dimensions } from "react-native";
@@ -85,7 +84,7 @@ const TaskView = ({route}) => {
     return (
         <View style={[styles.container, themeStyles.container]}>
             <ScrollView style={[styles.taskDetailContainer, themeStyles.projectTile]}>
-            <Pressable onLongPress={ () => deleteTask(task, navigation)} style={{position: 'absolute', right: 5, top: 5}} accessible={true} accessibilityLabel="delete task" accesibilityHint="Double-tap to delete this task" accessibilityRole="button">
+            <Pressable onLongPress={ () => deleteTask(task, navigation, setLoading)} style={{position: 'absolute', right: 5, top: 5}} accessible={true} accessibilityLabel="delete task" accesibilityHint="Double-tap to delete this task" accessibilityRole="button">
                 <Icon name='delete'size={20} color={isDarkMode ? '#0a3d62' : '#f0f0f0'}/>
             </Pressable>
             <Text style={[styles.addProjectTitle, themeStyles.rProjectTile, themeStyles.rProjectTileName]} accessible={true} accessibilityLabel={"task " + task.title} accessibilityRole="header">{task.title}</Text>
@@ -178,12 +177,22 @@ const EditTask = ({task, status, setModalVisible, project, statusList, categorie
     const [titleError, setTitleError] = useState("");
     const [deadlineError, setDeadlineError] = useState("");
 
-    const handleSubmit = () => {
+    const [loading, setLoading] = useState(true);
+    
+        useEffect(() => {
+            if(priorities.length > 0){
+                setLoading(false)
+            }
+        }, [priorities.length])
+
+    const handleSubmit = async () => {
         var temp ={id: -1, title: title, description: description, deadline: deadline, status: selectedStatus, projectid: project.id, categoryid: selectedCategory == 99999999 ? null: selectedCategory, priorityid: selectedPriority, parenttaskid: task.parenttaskid}
         setTitleError("")
         setDeadlineError("")
         if(validateTaskPost(temp)){
-            updateTask(temp, setTask, '/tasks/update/', task.id)
+            setLoading(true)
+            await updateTask(temp, setTask, '/tasks/update/', task.id)
+            setLoading(false)
             setModalVisible((prevModalVisible) => false)
             setTitle('')
             setDescription('')
@@ -220,6 +229,7 @@ const EditTask = ({task, status, setModalVisible, project, statusList, categorie
             <ScrollView style={styles.addProjectForm} accessible={false} importantForAccessibility="no">
                 <Pressable accessible={false} importantForAccessibility="no">
                 <Text style={styles.addProjectTitle} accessible={true} accessibilityLabel={"Edit Task: " + task.title} accessibilityRole="header">Edit Task: "{task.title}"</Text>
+                {loading ? <ActivityIndicator size="small"/>: null}
                 <Text style={styles.inputlabel } accessible={true} accessibilityLabel="task title" accessibilityRole="text">Title:</Text>
                 {titleError.length > 0 && <Text style={{color: 'red'}} accessible={true} accessibilityLabel={"title-error " + titleError} accessibilityRole="alert">{titleError}</Text>}
                 <TextInput placeholder="Task Title" placeholderTextColor={"gray"} onChangeText={(text) => setTitle(text)} value={title} style={styles.addProjectInput} label/>
@@ -229,16 +239,16 @@ const EditTask = ({task, status, setModalVisible, project, statusList, categorie
                 {deadlineError.length > 0 && <Text style={{color: 'red'}} accessible={true} accessibilityLabel={"deadline-error " + deadlineError} accessibilityRole="text">{deadlineError}</Text>}
                 <TextInput placeholder="Task deadline" placeholderTextColor={"gray"} onChangeText={(text) => setDeadline(text)} value={deadline} style={styles.addProjectInput} label/>
                 <Text style={styles.inputlabel} accessible={true} accessibilityLabel="task status" accessibilityRole="text">Status</Text>
-                <Picker selectedValue={selectedStatus} onValueChange={(itemValue, itemIndex) => setSelectedStatus(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
-                    {statusList.map((statusItem) => (<Picker.Item label={statusItem} value={statusItem} key={statusItem}/>))}
+                <Picker selectedValue={selectedStatus} onValueChange={(itemValue, itemIndex) => setSelectedStatus(itemValue)} style={[styles.addPicker]}>
+                    {statusList.map((statusItem) => (<Picker.Item label={statusItem} value={statusItem} key={statusItem} color="black"/>))}
                 </Picker>
                 <Text style={styles.inputlabel} accessible={true} accessibilityLabel="task category" accessibilityRole="text">Category</Text>
-                <Picker selectedValue={selectedCategory} onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
-                    {categories.map((category) => (<Picker.Item label={category.name} value={category.id} key={category.id}/>))}
+                <Picker selectedValue={selectedCategory} onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)} style={[styles.addPicker]}>
+                    {categories.map((category) => (<Picker.Item label={category.name} value={category.id} key={category.id} color="black"/>))}
                 </Picker>
                 <Text style={styles.inputlabel} accessible={true} accessibilityLabel="task priority" accessibilityRole="text">Priority</Text>
-                <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker, Platform.OS == 'ios' ? styles.addPickerIos: null]}>
-                    {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id}/>))}
+                <Picker selectedValue={selectedPriority} onValueChange={(itemValue, itemIndex) => setSelectedPriority(itemValue)} style={[styles.addPicker]}>
+                    {priorities.map((priority) => (<Picker.Item label={priority.name} value={priority.id} key={priority.id} color="black"/>))}
                 </Picker>
                 <Pressable onPress={handleSubmit} style={styles.button}><Text style={styles.buttonText} accessible={true} accessibilityLabel="update task" accessibilityHint="Double-tap to update task" accessibilityRole="button">update task</Text></Pressable>
                 <Pressable onPress={() => setModalVisible(false)} style={{alignSelf: "center"}} accessible={true} accessibilityLabel="remove edit-task-menu" accessibilityHint="Double-tap to remove edit-task-menu" accessibilityRole="button">
@@ -273,7 +283,8 @@ const updateTask = async (data, setState, urlExtention, id) => {
     }
   };
 
-  const deleteTask = async (task, navigation) => {
+  const deleteTask = async (task, navigation, setLoading) => {
+    setLoading(true)
     try {
         console.log("delete task: " + task.id)
         const response = await fetch(api_url + "tasks/delete/" + task.id, {
@@ -286,11 +297,12 @@ const updateTask = async (data, setState, urlExtention, id) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
+        setLoading(false)
         console.log('Response: ', response);
         navigation.goBack()
         
       } catch (error) {
+        setLoading(false)
         console.error('Error:', error.message);
       }
   }

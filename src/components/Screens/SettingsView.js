@@ -52,6 +52,8 @@ const SettingsView = () => {
 
     const [loading, setLoading] = useState(true)
 
+    const [loading2, setLoading2] = useState(false)
+
     useEffect(() => {
         fetch(api_url + "priorities")
                 .then(res => res.json())
@@ -85,14 +87,16 @@ const SettingsView = () => {
       return (returnName && returnColor)
     }
 
-    const handleCategorySave = () => {
+    const handleCategorySave = async () => {
       var temp = {id: -1, name: addCategoryName, description: addCategoryDescription, color: addCategoryColor}
       setNameError("")
       setColorError("")
       if(validateCategoryPost(temp))
       {
         var updateCategoryLambda = () => {getCategories(setCategories)}
-        postObject(temp, 'categories/add', updateCategoryLambda)
+        setLoading2(true)
+        await postObject(temp, 'categories/add', updateCategoryLambda)
+        setLoading2(false)
         setAddCategoryVisible(false)
         setAddCategoryName("")
         setAddCategoryDescription("")
@@ -114,7 +118,7 @@ const SettingsView = () => {
       <View style={[styles.container, themeStyles.container]}>
         <ScrollView style={{width:'75%'}}>
           <View style={styles.settings}>
-            {loading ? <ActivityIndicator size="large"/>: null}
+            {loading ? <ActivityIndicator size="large" style={{alignSelf: 'center'}}/>: null}
             <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Dark Mode:</Text>
             <Switch value={isDarkMode} onValueChange={toggleTheme} style={{marginLeft: 20}} accessible={true} accessibilityLabel={isDarkMode ? "disable darkmode" : "enable darkmode"} accesibilityHint="press to switch setting" accessibilityRole="switch" accessibilityValue={{min: 0, max: 1, now: isDarkMode, text: isDarkMode ? "enabled": "disabled"}}/>
             <View style={styles.horizontalLine}/>
@@ -133,12 +137,13 @@ const SettingsView = () => {
                 renderItem={({ item }) =>
                   <View style={[styles.category, themeStyles.task, {borderColor: item.color}]}>
                     <Text style={themeStyles.taskText} accessible={true} accessibilityLabel={"category " + item.name} accessibilityRole="text">{item.name}</Text>
-                    <Pressable onLongPress={ () => deleteCategory(setCategories, 'categories/delete/',item.id)} style={{borderColor: item.color}} accessible={true} accessibilityLabel={"delete category " + item.name} accesibilityHint="Double-tap to delete this category" accessibilityRole="button">
+                    <Pressable onLongPress={ () => deleteCategory(setCategories, 'categories/delete/',item.id, setLoading2)} style={{borderColor: item.color}} accessible={true} accessibilityLabel={"delete category " + item.name} accesibilityHint="Double-tap to delete this category" accessibilityRole="button">
                       <Icon name='delete'size={20} color={isDarkMode ? '#f0f0f0' : '#0a3d62'}/>
                     </Pressable>
                   </View>}
               keyExtractor={(item) => item.id} numColumns={columnsNumber} key={columnsNumber} nestedScrollEnabled={true}/></ScrollView>): 
               (<Text>No categories yet</Text>)}
+              {loading2 ? <ActivityIndicator size="small" style={{alignSelf: 'center'}}/>: null}
               {!addCategoryVisible && 
               <View style={{marginLeft: 20}}>
                   <Pressable onPress={() => setAddCategoryVisible(!addCategoryVisible)} style={styles.button} accessible={true} accessibilityLabel="add category" accesibilityHint="Double-tap to add a category" accessibilityRole="button"><Text style={styles.buttonText}>Add category</Text></Pressable>
@@ -191,7 +196,8 @@ const getCategories = async (setCategories) => {
     .catch(error => console.error(error))
 }
 
-const deleteCategory = async (setState, urlExtention, id) => {
+const deleteCategory = async (setState, urlExtention, id, setLoading2) => {
+  setLoading2(true)
     try {
       const response = await fetch(api_url + urlExtention + id, {
         method: 'DELETE',
@@ -204,9 +210,11 @@ const deleteCategory = async (setState, urlExtention, id) => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       setState((prevCategories) => prevCategories.filter((category) => category.id != id))
+      setLoading2(false)
       console.log('Response: ', response);
       
     } catch (error) {
+      setLoading2(false)
       console.error('Error:', error.message);
     }
   };

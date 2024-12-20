@@ -33,6 +33,7 @@ const HomeScreenView = () => {
             </Stack.Group>
             <Stack.Group screenOptions={{presentation: isVoiceOverEnabled ? 'card' : 'modal'}}>
                 <Stack.Screen name="TaskDetail" component={TaskView} options={{title: 'Task'}}/>
+                <Stack.Screen name="SubTaskDetail" component={TaskView} options={{title: 'SubTask'}}/>
             </Stack.Group>
             
         </Stack.Navigator>

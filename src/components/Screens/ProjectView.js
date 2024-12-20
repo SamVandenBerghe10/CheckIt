@@ -111,11 +111,15 @@ const AddProject = (props) => {
 
     const updateProjectLambda = () => {getProjects({setProjects, setFilteredProjects, setSearchProject, setLoading})}
 
-    const handleSubmit = () => {
+    const [loading2, setLoading2] = useState(false);
+
+    const handleSubmit = async () => {
         var temp = {Id: -1, name: name, description: description}
         if(validateProjectPost(name))
         {
-            postObject(temp, 'projects/add', updateProjectLambda)
+            setLoading2(true)
+            await postObject(temp, 'projects/add', updateProjectLambda)
+            setLoading2(false)
             HandleExit()
         }
         else 
@@ -147,6 +151,7 @@ const AddProject = (props) => {
                         <Icon name='delete'size={18} color='#0a3d62'/>
                     </Pressable>
                     <Text style={styles.addProjectTitle} accessible={true} accessibilityLabel="Add a new project" accessibilityRole="header">Add a new Project!</Text>
+                    {loading2 ? <ActivityIndicator size="small" style={{alignSelf: 'center'}}/>: null}
                     <Text style={styles.inputlabel} accessible={true} accessibilityLabel="project name"  accessibilityRole="text">Project name:</Text>
                     {nameError.length > 0 && <Text style={{color: 'red'}} accessible={true} accessibilityLabel={"name-error: " + nameError} accessibilityRole="alert">{nameError}</Text>}
                     <TextInput placeholder="name" placeholderTextColor={"gray"} onChangeText={(text) => setName(text)} value={name} style={styles.addProjectInput} label/>

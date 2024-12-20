@@ -157,7 +157,7 @@ export const Task = (props) => {
         color = "red"
     }
     return (
-        <Pressable style={[styles.task, themeStyles.task, {borderColor: task.category?.color}]} onPress={() => navigation.push('TaskDetail', {temp, statusList, tempCategories, priorities})} accessible={true} accessibilityLabel={"Task: " + task.title} accessibilityHint="Double-tap to see task details" accessibilityRole="button">
+        <Pressable style={[styles.task, themeStyles.task, {borderColor: task.category?.color}]} onPress={() => navigation.push(task.parenttaskid == null ? 'TaskDetail' : 'SubTaskDetail', {temp, statusList, tempCategories, priorities})} accessible={true} accessibilityLabel={"Task: " + task.title} accessibilityHint="Double-tap to see task details" accessibilityRole="button">
             <Text style={themeStyles.taskText}><Text style={{color: color}}>{title}</Text>{task.category ? " | " + category + " | ": " | "}{<PriorityIndicator priority={task.priority} style={{position: 'absolute', right: 1}}/>}{task.childtasks?.length > 0 ? <Icon name='account-tree' size={18} color={themeStyles.taskText} style={{position: 'absolute', right: 1}}/>: null}</Text>
         </Pressable>
     )
@@ -213,14 +213,22 @@ export const AddTask = (props) => {
     const [titleError, setTitleError] = useState("");
     const [deadlineError, setDeadlineError] = useState("");
 
-    const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+    const [loading, setLoading] = useState(true);
 
-    const handleSubmit = () => {
+    useEffect(() => {
+        if(priorities.length > 0){
+            setLoading(false)
+        }
+    }, [priorities.length])
+
+    const handleSubmit = async () => {
         var temp ={id: -1, title: title, description: description, deadline: deadline, status: selectedStatus, projectid: project.id, categoryid: selectedCategory, priorityid: selectedPriority, childtasks: [], parenttaskid: parenttask?.id}
         setTitleError("")
         setDeadlineError("")
         if(validateTaskPost(temp)) {
-            postObject(temp, 'tasks/add', updateTaskLambda)
+            setLoading(true)
+            await postObject(temp, 'tasks/add', updateTaskLambda)
+            setLoading(false)
             setModalVisible((prevModalVisible) => false)
             setTitle('')
             setDescription('')
@@ -258,6 +266,7 @@ export const AddTask = (props) => {
             <ScrollView style={styles.addProjectForm} accessible={false} importantForAccessibility="no">
                 <Pressable accessible={false} importantForAccessibility="no">
                 <Text style={styles.addProjectTitle} accessible={true} accessibilityLabel={titleText} accessibilityRole="header">{titleText}</Text>
+                {loading ? <ActivityIndicator size="small"/>: null}
                 <Text style={styles.inputlabel} accessible={true} accessibilityLabel="task title" accessibilityRole="text">Title:</Text>
                 {titleError.length > 0 && <Text style={{color: 'red'}} accessible={true} accessibilityLabel={"title-error " + titleError} accessibilityRole="alert">{titleError}</Text>}
                 <TextInput placeholder="title" placeholderTextColor={"gray"} onChangeText={(text) => setTitle(text)} value={title} style={styles.addProjectInput} label/>
@@ -316,10 +325,14 @@ const DeleteProject = ({setModalVisible, project}) => {
 
     const navigation = useNavigation()
 
-    const HandleProjectDelete = () => {
+    const [loading, setLoading] = useState(false);
+
+    const HandleProjectDelete = async () => {
         setConfirmError("Project name does not match")
         if(confirmText == project.name) {
-            deleteProject(navigation, 'projects/delete/', project.id)
+            setLoading(true)
+            await deleteProject(navigation, 'projects/delete/', project.id)
+            setLoading(false)
             setConfirmError("")
             setModalVisible((prevModalVisible) => false)
         }
@@ -331,6 +344,7 @@ const DeleteProject = ({setModalVisible, project}) => {
                     <View style={styles.addProjectForm} accessible={false} importantForAccessibility="no">
                         <Pressable accessible={false} importantForAccessibility="no">
                         <Text style={styles.addProjectTitle}>Are you sure??</Text>
+                        {loading ? <ActivityIndicator size="small" style={{alignSelf: 'center'}}/>: null}
                         <Pressable onPress={() => setModalVisible(false)} style={{position: 'absolute', right: -20, top: 10}} accessible={true} accessibilityLabel="remove delete-project-menu" accesibilityHint="Double-tap to remove the delete-project-menu" accessibilityRole="button">
                             <Icon name='delete'size={18} color='#0a3d62'/>
                         </Pressable>
