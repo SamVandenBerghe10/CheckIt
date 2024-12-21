@@ -150,7 +150,7 @@ const SettingsView = () => {
               </View>}
               {addCategoryVisible && <View style={[themeStyles.taskColumn, styles.addCategoryContainer, {maxHeight: 400, marginTop: 20}]}>
               <Pressable onPress={() =>  handleCategorySaveCancel()} style={{position: 'absolute', right: 5, top: 5}} accessible={true} accessibilityLabel="remove add-category-menu" accesibilityHint="Double-tap to remove the add-category-menu" accessibilityRole="button">
-                <Icon name='delete'size={20} color={isDarkMode ? '#0a3d62' : '#f0f0f0'}/>
+                <Icon name='close'size={20} color={isDarkMode ? '#0a3d62' : '#f0f0f0'}/>
               </Pressable>
               <Text style={[styles.settingsTitle, themeStyles.projectTile, themeStyles.projectTileName]}>Add a new category</Text>
               <Text style={styles.inputlabel}>Name:</Text>

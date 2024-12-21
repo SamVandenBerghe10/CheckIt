@@ -148,7 +148,7 @@ const AddProject = (props) => {
             <View style={styles.addProjectForm} accessible={false} importantForAccessibility="no">
                 <Pressable accessible={false} importantForAccessibility="no">
                     <Pressable onPress={() => HandleExit()} style={{position: 'absolute', right: -20, top: 10}} accessible={true} accessibilityLabel="remove add-project-menu" accesibilityHint="Double-tap to remove the add-project-menu" accessibilityRole="button">
-                        <Icon name='delete'size={18} color='#0a3d62'/>
+                        <Icon name='close'size={18} color='#0a3d62'/>
                     </Pressable>
                     <Text style={styles.addProjectTitle} accessible={true} accessibilityLabel="Add a new project" accessibilityRole="header">Add a new Project!</Text>
                     {loading2 ? <ActivityIndicator size="small" style={{alignSelf: 'center'}}/>: null}

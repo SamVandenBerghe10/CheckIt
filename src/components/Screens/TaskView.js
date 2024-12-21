@@ -225,7 +225,7 @@ const EditTask = ({task, status, setModalVisible, project, statusList, categorie
 
     return (
         <View style={styles.addProjectTransparant} accessible={false} importantForAccessibility="no-hide-descendants">
-            <Pressable onPress={() => setModalVisible((prevModalVisible) => false)} style={{flex: 1, justifyContent: 'center', maxHeight: 710}} accessible={false} importantForAccessibility="no">
+            <Pressable onPress={() => setModalVisible((prevModalVisible) => false)} style={{flex: 1, justifyContent: 'center', maxHeight: 720}} accessible={false} importantForAccessibility="no">
             <ScrollView style={styles.addProjectForm} accessible={false} importantForAccessibility="no">
                 <Pressable accessible={false} importantForAccessibility="no">
                 <Text style={styles.addProjectTitle} accessible={true} accessibilityLabel={"Edit Task: " + task.title} accessibilityRole="header">Edit Task: "{task.title}"</Text>

@@ -66,7 +66,7 @@ const TaskListView = ({route}) => {
         <View style={[styles.container2, themeStyles.container]}>
             <Text style={[styles.taskHeader ,themeStyles.projectTile, themeStyles.projectTileName]} accessible={true} accessibilityLabel={"Tasks of project " + project.name} accessibilityRole="header">{project.name}</Text>
             {loading ? <ActivityIndicator size="large"/>: null}
-            <Pressable onPress={() => setDeleteModal(true)} style={{position: 'absolute', right: 10, top: 10}} accessible={true} accessibilityLabel="Delete Project" accesibilityHint={"Double tap to delete a project"} accessibilityRole="button">
+            <Pressable onLongPress={() => setDeleteModal(true)} style={{position: 'absolute', right: 10, top: 10}} accessible={true} accessibilityLabel="Delete Project" accesibilityHint={"Double tap to delete a project"} accessibilityRole="button">
                 <Icon name='delete'size={30} color={isDarkMode ? '#f0f0f0' : '#0a3d62'}/>
             </Pressable>
             <ScrollView horizontal>
@@ -346,7 +346,7 @@ const DeleteProject = ({setModalVisible, project}) => {
                         <Text style={styles.addProjectTitle}>Are you sure??</Text>
                         {loading ? <ActivityIndicator size="small" style={{alignSelf: 'center'}}/>: null}
                         <Pressable onPress={() => setModalVisible(false)} style={{position: 'absolute', right: -20, top: 10}} accessible={true} accessibilityLabel="remove delete-project-menu" accesibilityHint="Double-tap to remove the delete-project-menu" accessibilityRole="button">
-                            <Icon name='delete'size={18} color='#0a3d62'/>
+                            <Icon name='close'size={18} color='#0a3d62'/>
                         </Pressable>
                         <Text style={styles.inputlabel} accessible={true} accessibilityLabel={"To verify the deletion of " + project.name + "please type the projects name"} accessibilityRole="text">To verify the deletion of: "<Text style={{color: "red"}}>{project.name}</Text>", please type the project name:</Text>
                         {confirmError.length > 0 && <Text style={{color: 'red'}} accessible={true} accessibilityLabel={"confirm-error: " + confirmError} accessibilityRole="alert">{confirmError}</Text>}
