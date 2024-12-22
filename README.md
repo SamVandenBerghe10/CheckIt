@@ -3,9 +3,11 @@
 een React Native (cross platform) app gemaakt voor het vak: Cross Platform Development,
 Vives Hogeschool Kortrijk
 
-## Algemene beschrijving
+Door Sam Vanden Berghe
+- sam.vanden.berghe@icloud.com (privé)
+- sam.vandenberghe@student.vives.be (school)
 
-App functionaliteiten:
+## App Functionaliteiten
 
 - Projecten:
   - Project aanmaken
@@ -15,16 +17,21 @@ App functionaliteiten:
   - Project verwijderen
 - Taken:
   - Taak toevoegen (project)
+  - Alle taken zien
   - Taak aanpassen
-  - Subtaak toevoegen (taak)
+  - Subtaak toevoegen (taak/subtaak)
+  - Alle subtaken zien (taak/subtaak)
   - Subtaak aanpassen
   - Subtaak verwijderen
   - Taak verwijdren
 - Categoriëen:
   - Categorie toevoegen
+  - Alle categoriëen zien
+  - Alle categoriëen oplijsten
   - Categorie verwijderen
 - Prioriteit:
   - Standaard prioriteit kiezen
+  - Alle prioriteiten oplijsten
 
 ## Goed om te weten
 
@@ -33,14 +40,36 @@ App functionaliteiten:
 Verwijderknoppen(vuilbakjes) moeten lang ingedrukt worden.
 - dit om perongelijke verwijdering te voorkomen
 
-Bij het opstarten voor de eerste keer zal de api (maximum) 30 seconden nodig hebben om te antwoorden op de eerste request. Hierna zou alles vlotter moeten lopen.
+Bij het opstarten voor de eerste keer zal de api (maximum) 30 seconden nodig hebben om te antwoorden op de eerste requests. Hierna zou alles vlotter moeten lopen.
 - wacht ook altijd tot de laadsymbolen weg zijn
 
-### Bugs
+### Visuals
 
-Enkel bij VoiceOver:
+#### Tasks:
+
+De naam van een taak kan verschillende kleuren hebben:
+- zwart/wit: meer dan 24u
+- geel: minder dan 24u
+- rood: deadline verlopen
+
+(eventueel) categorienaam
+- Ook kleur van border is gelijk aan dat van categorie
+
+Taken hebben icoontjes ((dubbel)pijltje omhoog, plat, (dubbel)pijltje naar beneden)
+- beschrijft de prioriteit visueel
+
+Taken kunnen rechts een vertakking-symbool hebben
+- betekent dat deze taak een of meerdere subtaken heeft
+
+
+
+### Gekende Bugs
+
+VoiceOver:
 - wanneer een modal voor de tweede keer geopend wordt zal de pagina unresponsive worden
-- eerste keer is alles oke!
+- eerste keer is alles perfect!
+
+-> enkel bij VoiceOver enabled
 
 ## Bronnen
 
@@ -51,7 +80,7 @@ Cross Platform Development handboek
 PowerPoint presentaties uit de lessen Cross Platform Developement
 
  [Gemini](https://gemini.google.com/app) (Google)
-- vooral gebruikt voor het debuggen van stukken code die niet werkten.
+- gebruikt voor het debuggen van stukken code die niet werkten.
 
 [React Native Docs](https://reactnative.dev/)
 - react native componenten

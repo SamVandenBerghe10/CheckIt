@@ -169,7 +169,9 @@ const SubTask = ({task, statusList, categories, priorities, onGoBack}) => {
 const EditTask = ({task, status, setModalVisible, project, statusList, categories, priorities, setTask}) => {
     const [title, setTitle] = useState(task.title);
     const [description, setDescription] = useState(task.description);
-    const [deadline, setDeadline] = useState(moment(task.deadline).format('YYYY-MM-DD HH:mm:ss'));
+    console.log("date: " + task.deadline)
+    const [deadline, setDeadline] = useState(moment.utc(task.deadline, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss'));
+    console.log("moment: " + deadline)
     const [selectedStatus, setSelectedStatus] = useState(status);
     const [selectedCategory, setSelectedCategory] = useState(task.category?.id);
     const [selectedPriority, setSelectedPriority] = useState(task.priority.id);
