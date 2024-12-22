@@ -48,8 +48,8 @@ Bij het opstarten voor de eerste keer zal de api (maximum) 30 seconden nodig heb
 #### Tasks:
 
 De naam van een taak kan verschillende kleuren hebben:
-- zwart/wit: meer dan 24u
-- geel: minder dan 24u
+- zwart/wit: deadline meer dan 24u
+- geel: deadline minder dan 24u
 - rood: deadline verlopen
 
 (eventueel) categorienaam

@@ -40,7 +40,6 @@ const TaskView = ({route}) => {
                 .then(data => {
                     setLoading(false)
                     setTask(data)
-                    console.log("task: " + JSON.stringify(data))
                 })
                 .catch(error => {
                     setLoading(false)
@@ -52,7 +51,6 @@ const TaskView = ({route}) => {
                 .then(data => {
                     var temp = [{id: 99999999, name: ""}, ...data]
                     setCategories(temp)
-                    console.log("categories: " + JSON.stringify(temp))
                 })
                 .catch(error => console.error(error))
       
@@ -136,7 +134,6 @@ const getTask = (setTask, task) => {
                 .then(res => res.json())
                 .then(data => {
                     setTask(data)
-                    console.log("task: " + JSON.stringify(data))
                 })
                 .catch(error => console.error(error))
 }
@@ -169,9 +166,7 @@ const SubTask = ({task, statusList, categories, priorities, onGoBack}) => {
 const EditTask = ({task, status, setModalVisible, project, statusList, categories, priorities, setTask}) => {
     const [title, setTitle] = useState(task.title);
     const [description, setDescription] = useState(task.description);
-    console.log("date: " + task.deadline)
     const [deadline, setDeadline] = useState(moment.utc(task.deadline, 'YYYY-MM-DD HH:mm:ss').format('YYYY-MM-DD HH:mm:ss'));
-    console.log("moment: " + deadline)
     const [selectedStatus, setSelectedStatus] = useState(status);
     const [selectedCategory, setSelectedCategory] = useState(task.category?.id);
     const [selectedPriority, setSelectedPriority] = useState(task.priority.id);
@@ -278,7 +273,6 @@ const updateTask = async (data, setState, urlExtention, id) => {
       }
       const result = await response.json()
       setState((prevTasks) => result)
-      console.log('Response: ', response);
       
     } catch (error) {
       console.error('Error:', error.message);
@@ -288,7 +282,6 @@ const updateTask = async (data, setState, urlExtention, id) => {
   const deleteTask = async (task, navigation, setLoading) => {
     setLoading(true)
     try {
-        console.log("delete task: " + task.id)
         const response = await fetch(api_url + "tasks/delete/" + task.id, {
           method: 'DELETE',
           headers: {
@@ -300,7 +293,6 @@ const updateTask = async (data, setState, urlExtention, id) => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         setLoading(false)
-        console.log('Response: ', response);
         navigation.goBack()
         
       } catch (error) {

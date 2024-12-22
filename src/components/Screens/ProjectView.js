@@ -81,7 +81,6 @@ const getProjects = async (props) => {
                     setProjects((prev) => data)
                     setFilteredProjects((prev) => data)
                     setSearchProject((prev) => "")
-                    console.log("projecten: " + JSON.stringify(data))
                 })
                 .catch(error => {
                     console.error(error)

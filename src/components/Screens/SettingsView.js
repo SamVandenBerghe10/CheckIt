@@ -61,7 +61,6 @@ const SettingsView = () => {
                   setLoading(false)
                   setPriorities(data)
                   setSelectedPriority(data.find(priority => priority.standardpriority === true)?.id)
-                  console.log("priorities: " + JSON.stringify(data))
                 })
                 .catch(error => {
                   setLoading(false)
@@ -191,7 +190,6 @@ const getCategories = async (setCategories) => {
     .then(res => res.json())
     .then(data => {
       setCategories((prev) => data)
-      console.log("categories: " + JSON.stringify(data))
     })
     .catch(error => console.error(error))
 }
@@ -211,8 +209,6 @@ const deleteCategory = async (setState, urlExtention, id, setLoading2) => {
       }
       setState((prevCategories) => prevCategories.filter((category) => category.id != id))
       setLoading2(false)
-      console.log('Response: ', response);
-      
     } catch (error) {
       setLoading2(false)
       console.error('Error:', error.message);
@@ -232,9 +228,7 @@ const deleteCategory = async (setState, urlExtention, id, setLoading2) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      console.log('Response: ', response);
       navigation.navigate("Home", {screen :"Projects"})
-      
     } catch (error) {
       console.error('Error:', error.message);
     }

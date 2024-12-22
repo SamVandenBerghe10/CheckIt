@@ -38,7 +38,6 @@ const TaskListView = ({route}) => {
                 .then(data => {
                     var temp = [{id: 99999999, name: ""}, ...data]
                     setCategories(temp)
-                    console.log("categories: " + JSON.stringify(temp))
                 })
                 .catch(error => console.error(error))
     }, []))
@@ -50,7 +49,6 @@ const TaskListView = ({route}) => {
                 .then(res => res.json())
                 .then(data => {
                     setPriorities(data)
-                    console.log("(sorted)priorities: " + JSON.stringify(data))
                 })
                 .catch(error => console.error(error))
       
@@ -88,7 +86,6 @@ const getTasks = async (props) => {
                 .then(data => {
                     setLoading(false)
                     setTasks((prev) => data)
-                    console.log("tasks: " + JSON.stringify(data))
                 })
                 .catch(error => {
                     setLoading(false)
@@ -312,7 +309,6 @@ export const postObject = async (data, urlExtention, updateTaskLambda) => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       updateTaskLambda()
-      console.log('Response: ', response);
       
     } catch (error) {
       console.error('Error:', error.message);
@@ -371,7 +367,6 @@ const deleteProject = async (navigation, urlExtention, id) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      console.log('Response: ', response);
       navigation.goBack()
       
     } catch (error) {
